@@ -2,7 +2,7 @@ import Parser from "rss-parser";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { storage } from "./storage";
-import { createEmbedding } from "./llm";
+import { createEmbedding } from "./embeddings";
 import { addDocumentToVectorStore } from "./vector-store";
 
 // RSS feed URL
