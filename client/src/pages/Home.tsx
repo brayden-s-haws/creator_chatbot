@@ -4,6 +4,8 @@ import ChatInterface from "@/components/ChatInterface";
 import ProfileCard from "@/components/ProfileCard";
 import SuggestedQuestions from "@/components/SuggestedQuestions";
 import SystemStatus from "@/components/SystemStatus";
+import CsvUploader from "@/components/CsvUploader";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Home() {
   // Fetch system status when the component mounts
@@ -39,6 +41,11 @@ export default function Home() {
           <ProfileCard />
           <SuggestedQuestions />
           <SystemStatus status={systemStatus} />
+          
+          {/* CSV Uploader Component */}
+          <div className="bg-white rounded-lg shadow">
+            <CsvUploader />
+          </div>
         </div>
       </main>
     </div>

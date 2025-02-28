@@ -71,8 +71,9 @@ export async function importArticlesFromCsv(csvFilePath: string): Promise<{
       const article = await storage.createArticle({
         title: record.title,
         url: record.url,
+        content: record.text || '',
+        publishedAt: new Date(pubDate),
         guid: guid,
-        pubDate: pubDate,
       });
       
       console.log(`Article added: ${article.title} (ID: ${article.id})`);
@@ -90,7 +91,8 @@ export async function importArticlesFromCsv(csvFilePath: string): Promise<{
       console.log(`Generated ${chunks.length} content chunks`);
       
       // Process each chunk
-      for (const [chunkIndex, chunkContent] of chunks.entries()) {
+      for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
+        const chunkContent = chunks[chunkIndex];
         try {
           console.log(`Processing chunk ${chunkIndex + 1}/${chunks.length} for article ID ${article.id}`);
           
