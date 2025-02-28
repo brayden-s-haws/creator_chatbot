@@ -38,9 +38,25 @@ export default function ChatInterface() {
   const chatMutation = useMutation({
     mutationFn: async (message: string) => {
       try {
-        const response = await apiRequest("POST", "/api/chat", { message });
-        return response;
-      } catch (error) {
+        // Use the updated apiRequest function from queryClient
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ message }),
+          credentials: "include",
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText || `Error ${response.status}: ${response.statusText}`);
+        }
+        
+        // Parse JSON manually
+        const data = await response.json();
+        return data as MessageType;
+      } catch (error: any) {
         console.error("Error in chat mutation:", error);
         throw error;
       }
@@ -50,8 +66,9 @@ export default function ChatInterface() {
       setIsTyping(false);
       queryClient.invalidateQueries({ queryKey: ["/api/system-status"] });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       setIsTyping(false);
+      console.error("Chat mutation error:", error);
       toast({
         title: "Error",
         description: `Failed to send message: ${error.message || "Unknown error"}`,
