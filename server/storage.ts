@@ -1,6 +1,8 @@
-import fs from "fs/promises";
-import path from "path";
-import { Article, ContentChunk, Query, InsertArticle, InsertContentChunk, InsertQuery, SystemStatusType } from "@shared/schema";
+
+import { eq } from 'drizzle-orm';
+import { Article, ContentChunk, Query, InsertArticle, InsertContentChunk, InsertQuery, SystemStatusType } from "../shared/schema";
+import { getDb } from './db';
+import * as schema from '../shared/schema';
 
 // Interface for storage operations
 export interface IStorage {
@@ -23,191 +25,226 @@ export interface IStorage {
   // System status operations
   getSystemStatus(): Promise<SystemStatusType>;
   updateSystemStatus(status: Partial<SystemStatusType>): Promise<SystemStatusType>;
-  
-  // Persistence operations
-  saveToFile(): Promise<void>;
-  loadFromFile(): Promise<void>;
 }
 
-export class MemStorage implements IStorage {
-  private articles: Map<number, Article>;
-  private contentChunks: Map<number, ContentChunk>;
-  private queries: Map<number, Query>;
-  private systemStatus: SystemStatusType;
-  
-  private articlesIdCounter: number;
-  private contentChunksIdCounter: number;
-  private queriesIdCounter: number;
-  
-  private dataDir: string;
-  
-  constructor() {
-    this.articles = new Map();
-    this.contentChunks = new Map();
-    this.queries = new Map();
-    this.articlesIdCounter = 1;
-    this.contentChunksIdCounter = 1;
-    this.queriesIdCounter = 1;
-    
-    this.systemStatus = {
-      dbConnected: true,
-      lastUpdated: null,
-      nextUpdate: null,
-      articlesIndexed: 0,
-    };
-    
-    this.dataDir = path.join(process.cwd(), "data");
-  }
+export class PostgresStorage implements IStorage {
   
   // Article operations
   async getArticles(): Promise<Article[]> {
-    return Array.from(this.articles.values());
+    const db = getDb();
+    if (!db) throw new Error("Database not initialized");
+    return await db.select().from(schema.articles);
   }
   
   async getArticleById(id: number): Promise<Article | undefined> {
-    return this.articles.get(id);
+    const db = getDb();
+    if (!db) throw new Error("Database not initialized");
+    const result = await db.select().from(schema.articles).where(eq(schema.articles.id, id));
+    return result[0];
   }
   
   async getArticleByUrl(url: string): Promise<Article | undefined> {
-    return Array.from(this.articles.values()).find(article => article.url === url);
+    const db = getDb();
+    if (!db) throw new Error("Database not initialized");
+    const result = await db.select().from(schema.articles).where(eq(schema.articles.url, url));
+    return result[0];
   }
   
   async getArticleByGuid(guid: string): Promise<Article | undefined> {
-    return Array.from(this.articles.values()).find(article => article.guid === guid);
+    const db = getDb();
+    if (!db) throw new Error("Database not initialized");
+    const result = await db.select().from(schema.articles).where(eq(schema.articles.guid, guid));
+    return result[0];
   }
   
-  async createArticle(insertArticle: InsertArticle): Promise<Article> {
-    const id = this.articlesIdCounter++;
-    const article: Article = { ...insertArticle, id, fetchedAt: new Date() };
-    this.articles.set(id, article);
-    this.systemStatus.articlesIndexed = this.articles.size;
-    this.systemStatus.lastUpdated = new Date().toISOString();
-    await this.saveToFile();
-    return article;
+  async createArticle(article: InsertArticle): Promise<Article> {
+    const db = getDb();
+    if (!db) throw new Error("Database not initialized");
+    const result = await db.insert(schema.articles).values(article).returning();
+    await this.updateSystemStatus({ 
+      lastUpdated: new Date().toISOString(), 
+      articlesIndexed: (await this.getArticles()).length 
+    });
+    return result[0];
   }
   
   // Content chunk operations
   async getContentChunks(): Promise<ContentChunk[]> {
-    return Array.from(this.contentChunks.values());
+    const db = getDb();
+    if (!db) throw new Error("Database not initialized");
+    return await db.select().from(schema.contentChunks);
   }
   
   async getContentChunksByArticleId(articleId: number): Promise<ContentChunk[]> {
-    return Array.from(this.contentChunks.values()).filter(chunk => chunk.articleId === articleId);
+    const db = getDb();
+    if (!db) throw new Error("Database not initialized");
+    return await db.select().from(schema.contentChunks).where(eq(schema.contentChunks.articleId, articleId));
   }
   
-  async createContentChunk(insertChunk: InsertContentChunk): Promise<ContentChunk> {
-    const id = this.contentChunksIdCounter++;
-    // Ensure embedding is provided (as required by ContentChunk type)
-    const chunk: ContentChunk = { 
-      ...insertChunk, 
-      id, 
-      embedding: insertChunk.embedding || [] 
-    };
-    this.contentChunks.set(id, chunk);
-    await this.saveToFile();
-    return chunk;
+  async createContentChunk(chunk: InsertContentChunk): Promise<ContentChunk> {
+    const db = getDb();
+    if (!db) throw new Error("Database not initialized");
+    const result = await db.insert(schema.contentChunks).values(chunk).returning();
+    return result[0];
   }
   
   // Query operations
   async getQueries(): Promise<Query[]> {
-    return Array.from(this.queries.values());
+    const db = getDb();
+    if (!db) throw new Error("Database not initialized");
+    return await db.select().from(schema.queries);
   }
   
-  async createQuery(insertQuery: InsertQuery): Promise<Query> {
-    const id = this.queriesIdCounter++;
-    // Ensure embedding is provided (as required by Query type)
-    const query: Query = { 
-      ...insertQuery, 
-      id, 
-      createdAt: new Date(),
-      embedding: insertQuery.embedding || []
-    };
-    this.queries.set(id, query);
-    await this.saveToFile();
-    return query;
+  async createQuery(query: InsertQuery): Promise<Query> {
+    const db = getDb();
+    if (!db) throw new Error("Database not initialized");
+    const result = await db.insert(schema.queries).values(query).returning();
+    return result[0];
   }
   
   // System status operations
   async getSystemStatus(): Promise<SystemStatusType> {
+    const db = getDb();
+    if (!db) throw new Error("Database not initialized");
+    const result = await db.select().from(schema.systemStatus);
+    
+    if (result.length === 0) {
+      // Create initial status if it doesn't exist
+      const newStatus = {
+        dbConnected: true,
+        lastUpdated: null,
+        nextUpdate: null,
+        articlesIndexed: 0
+      };
+      await db.insert(schema.systemStatus).values(newStatus);
+      return newStatus;
+    }
+    
     return {
-      ...this.systemStatus,
-      articlesIndexed: this.articles.size,
+      dbConnected: result[0].dbConnected,
+      lastUpdated: result[0].lastUpdated ? result[0].lastUpdated.toISOString() : null,
+      nextUpdate: result[0].nextUpdate ? result[0].nextUpdate.toISOString() : null,
+      articlesIndexed: result[0].articlesIndexed
     };
   }
   
   async updateSystemStatus(status: Partial<SystemStatusType>): Promise<SystemStatusType> {
-    this.systemStatus = { ...this.systemStatus, ...status };
-    await this.saveToFile();
-    return this.systemStatus;
-  }
-  
-  // Persistence operations
-  async saveToFile(): Promise<void> {
-    try {
-      // Ensure data directory exists
-      await fs.mkdir(this.dataDir, { recursive: true });
-      
-      // Serialize data
-      const data = {
-        articles: Array.from(this.articles.values()),
-        contentChunks: Array.from(this.contentChunks.values()),
-        queries: Array.from(this.queries.values()),
-        systemStatus: this.systemStatus,
-        counters: {
-          articlesIdCounter: this.articlesIdCounter,
-          contentChunksIdCounter: this.contentChunksIdCounter,
-          queriesIdCounter: this.queriesIdCounter,
-        },
+    const db = getDb();
+    if (!db) throw new Error("Database not initialized");
+    
+    // Convert string dates to Date objects if they exist
+    const dbStatus: any = { ...status };
+    if (status.lastUpdated) dbStatus.lastUpdated = new Date(status.lastUpdated);
+    if (status.nextUpdate) dbStatus.nextUpdate = new Date(status.nextUpdate);
+    
+    const currentStatus = await db.select().from(schema.systemStatus);
+    
+    if (currentStatus.length === 0) {
+      // Create initial record
+      const fullStatus = {
+        dbConnected: status.dbConnected ?? true,
+        lastUpdated: dbStatus.lastUpdated ?? null,
+        nextUpdate: dbStatus.nextUpdate ?? null,
+        articlesIndexed: status.articlesIndexed ?? 0
       };
+      await db.insert(schema.systemStatus).values(fullStatus);
       
-      // Write to file
-      await fs.writeFile(
-        path.join(this.dataDir, "data.json"),
-        JSON.stringify(data, null, 2)
-      );
-    } catch (error) {
-      console.error("Failed to save data to file:", error);
+      return {
+        ...fullStatus,
+        lastUpdated: fullStatus.lastUpdated ? fullStatus.lastUpdated.toISOString() : null,
+        nextUpdate: fullStatus.nextUpdate ? fullStatus.nextUpdate.toISOString() : null,
+      };
     }
-  }
-  
-  async loadFromFile(): Promise<void> {
-    try {
-      const filePath = path.join(this.dataDir, "data.json");
-      
-      // Check if file exists
-      try {
-        await fs.access(filePath);
-      } catch {
-        // File doesn't exist, nothing to load
-        return;
-      }
-      
-      // Read and parse data
-      const content = await fs.readFile(filePath, "utf-8");
-      const data = JSON.parse(content);
-      
-      // Restore data
-      this.articles = new Map(data.articles.map((article: Article) => [article.id, article]));
-      this.contentChunks = new Map(data.contentChunks.map((chunk: ContentChunk) => [chunk.id, chunk]));
-      this.queries = new Map(data.queries.map((query: Query) => [query.id, query]));
-      this.systemStatus = data.systemStatus;
-      
-      // Restore counters
-      this.articlesIdCounter = data.counters.articlesIdCounter;
-      this.contentChunksIdCounter = data.counters.contentChunksIdCounter;
-      this.queriesIdCounter = data.counters.queriesIdCounter;
-      
-      console.log(`Loaded ${this.articles.size} articles, ${this.contentChunks.size} chunks, and ${this.queries.size} queries from file.`);
-    } catch (error) {
-      console.error("Failed to load data from file:", error);
-    }
+    
+    // Update existing record
+    await db.update(schema.systemStatus)
+      .set(dbStatus)
+      .where(eq(schema.systemStatus.id, currentStatus[0].id));
+    
+    // Get updated status
+    const updated = await db.select().from(schema.systemStatus).where(eq(schema.systemStatus.id, currentStatus[0].id));
+    
+    return {
+      dbConnected: updated[0].dbConnected,
+      lastUpdated: updated[0].lastUpdated ? updated[0].lastUpdated.toISOString() : null,
+      nextUpdate: updated[0].nextUpdate ? updated[0].nextUpdate.toISOString() : null,
+      articlesIndexed: updated[0].articlesIndexed
+    };
   }
 }
 
-// Create and initialize storage
-export const storage = new MemStorage();
+// Fallback to file-based storage when database is not available
+import { MemStorage } from './file-persister';
 
-// Load data from file on startup
-(async () => {
-  await storage.loadFromFile();
-})();
+// Create a hybrid storage that tries PostgreSQL first, then falls back to file storage
+class HybridStorage implements IStorage {
+  private pgStorage: PostgresStorage;
+  private fileStorage: MemStorage;
+  private useDb: boolean;
+  
+  constructor() {
+    this.pgStorage = new PostgresStorage();
+    this.fileStorage = new MemStorage();
+    this.useDb = !!process.env.DATABASE_URL;
+  }
+  
+  private getStorage(): IStorage {
+    return this.useDb ? this.pgStorage : this.fileStorage;
+  }
+  
+  // Implement IStorage methods by delegating to the appropriate storage
+  
+  async getArticles(): Promise<Article[]> {
+    return this.getStorage().getArticles();
+  }
+  
+  async getArticleById(id: number): Promise<Article | undefined> {
+    return this.getStorage().getArticleById(id);
+  }
+  
+  async getArticleByUrl(url: string): Promise<Article | undefined> {
+    return this.getStorage().getArticleByUrl(url);
+  }
+  
+  async getArticleByGuid(guid: string): Promise<Article | undefined> {
+    return this.getStorage().getArticleByGuid(guid);
+  }
+  
+  async createArticle(article: InsertArticle): Promise<Article> {
+    return this.getStorage().createArticle(article);
+  }
+  
+  async getContentChunks(): Promise<ContentChunk[]> {
+    return this.getStorage().getContentChunks();
+  }
+  
+  async getContentChunksByArticleId(articleId: number): Promise<ContentChunk[]> {
+    return this.getStorage().getContentChunksByArticleId(articleId);
+  }
+  
+  async createContentChunk(chunk: InsertContentChunk): Promise<ContentChunk> {
+    return this.getStorage().createContentChunk(chunk);
+  }
+  
+  async getQueries(): Promise<Query[]> {
+    return this.getStorage().getQueries();
+  }
+  
+  async createQuery(query: InsertQuery): Promise<Query> {
+    return this.getStorage().createQuery(query);
+  }
+  
+  async getSystemStatus(): Promise<SystemStatusType> {
+    return this.getStorage().getSystemStatus();
+  }
+  
+  async updateSystemStatus(status: Partial<SystemStatusType>): Promise<SystemStatusType> {
+    return this.getStorage().updateSystemStatus(status);
+  }
+}
+
+// Move original MemStorage to a separate file
+export { MemStorage } from './file-persister';
+
+// Export a unified storage interface
+export const storage = new HybridStorage();

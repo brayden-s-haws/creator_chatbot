@@ -1,4 +1,5 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
+
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -29,6 +30,23 @@ export const queries = pgTable("queries", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Vector store documents table
+export const vectorDocuments = pgTable("vector_documents", {
+  id: varchar("id", { length: 255 }).primaryKey(),
+  content: text("content").notNull(),
+  embedding: jsonb("embedding").notNull(),
+  metadata: jsonb("metadata").notNull(),
+});
+
+// System status table
+export const systemStatus = pgTable("system_status", {
+  id: serial("id").primaryKey(),
+  dbConnected: boolean("db_connected").notNull().default(true),
+  lastUpdated: timestamp("last_updated"),
+  nextUpdate: timestamp("next_update"),
+  articlesIndexed: integer("articles_indexed").notNull().default(0),
+});
+
 // Schema for inserting a new article
 export const insertArticleSchema = createInsertSchema(articles).omit({
   id: true,
@@ -46,6 +64,9 @@ export const insertQuerySchema = createInsertSchema(queries).omit({
   createdAt: true,
 });
 
+// Schema for inserting a new vector document
+export const insertVectorDocumentSchema = createInsertSchema(vectorDocuments);
+
 // Types based on the schemas
 export type InsertArticle = z.infer<typeof insertArticleSchema>;
 export type Article = typeof articles.$inferSelect;
@@ -55,6 +76,9 @@ export type ContentChunk = typeof contentChunks.$inferSelect;
 
 export type InsertQuery = z.infer<typeof insertQuerySchema>;
 export type Query = typeof queries.$inferSelect;
+
+export type VectorDocument = typeof vectorDocuments.$inferSelect;
+export type InsertVectorDocument = z.infer<typeof insertVectorDocumentSchema>;
 
 // Source citation type
 export type SourceCitation = {
