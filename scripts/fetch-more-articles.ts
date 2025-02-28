@@ -162,98 +162,161 @@ async function scrapeArchivePage(pageNumber: number): Promise<{
   articles: number,
   hasMorePages: boolean 
 }> {
+  // Construct URL differently for different pages
+  // Direct method:
   const url = pageNumber === 1 
     ? ARCHIVE_URL 
     : `${ARCHIVE_URL}?page=${pageNumber}`;
+    
+  // Try an alternative URL format as well (sometimes Substack uses a different structure)
+  const alternativeUrl = pageNumber === 1
+    ? ARCHIVE_URL
+    : `${SUBSTACK_URL}/archive/${pageNumber}`;
   
   console.log(`Scraping archive page ${pageNumber}: ${url}`);
   
   try {
-    const response = await axios.get(url);
+    // Try the primary URL first
+    let response;
+    try {
+      response = await axios.get(url);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      console.log(`Error accessing primary URL ${url}, trying alternative URL ${alternativeUrl}: ${errorMessage}`);
+      response = await axios.get(alternativeUrl);
+    }
+    
     const html = response.data;
     const $ = cheerio.load(html);
     
     let articlesProcessed = 0;
     let hasMorePages = false;
     
-    // Check if there's a next page link
-    $('a.next-page-button').each((_, element) => {
-      hasMorePages = true;
+    // Enhanced pagination detection - look for any indication of pagination
+    $('a, button, div.pagination').each((_, element) => {
+      const el = $(element);
+      const text = el.text().trim().toLowerCase();
+      const href = el.attr('href') || '';
+      
+      // Check various common pagination indicators
+      if (
+        text.includes('next') || 
+        text.includes('page') || 
+        text.includes('older') ||
+        href.includes('page=') ||
+        href.includes('/archive/') ||
+        el.attr('class')?.toLowerCase().includes('pagination')
+      ) {
+        console.log(`Found pagination indicator: ${text || href}`);
+        hasMorePages = true;
+      }
     });
     
-    // Based on our analysis, we'll extract links directly from the archive page
-    console.log("Extracting article links directly");
+    // For page 1, we assume there might be more even if we don't find pagination links
+    if (pageNumber === 1) {
+      hasMorePages = true;
+    }
     
-    // Find all links to substack articles, filtering out duplicates and comment links
+    console.log("Extracting article links more aggressively");
+    
+    // Find all links on the page, not just substack specific ones
     const articleLinks: Array<{ url: string, title: string, date: string }> = [];
     const processedUrls = new Set<string>();
     
-    $('a[href*="https://runthebusiness.substack.com/p/"]').each((_, element) => {
+    // Broader link search - any link that could be a post
+    $('a').each((_, element) => {
       const link = $(element);
       const href = link.attr('href') || '';
       
-      // Skip comment links or already processed URLs
-      if (href.includes('/comments') || processedUrls.has(href)) {
-        return;
-      }
+      // Filter for likely post links
+      const isLikelyPost = (
+        (href.includes('/p/') || href.match(/\/[a-z0-9-]+$/i)) && 
+        !href.includes('/comments') && 
+        !href.includes('/subscribe') &&
+        !href.includes('/account') &&
+        !href.includes('/about') &&
+        !processedUrls.has(href)
+      );
+      
+      if (!isLikelyPost) return;
+      
+      // Construct full URL if relative
+      const fullUrl = href.startsWith('http') ? href : `${SUBSTACK_URL}${href.startsWith('/') ? href : `/${href}`}`;
       
       // Try to find title near the link
       let title = link.text().trim();
       
       // If the link text is empty or too short, try to find a better title
       if (!title || title.length < 5) {
-        // Look for h2 or h3 elements nearby
-        const parentDiv = link.closest('div');
+        // Look for various title-like elements nearby
+        const parentDiv = link.closest('div, article, section');
         
         if (parentDiv) {
           // Check nearby heading elements
-          const nearbyH2 = parentDiv.find('h2').first();
-          const nearbyH3 = parentDiv.find('h3').first();
+          const nearbyHeading = parentDiv.find('h1, h2, h3, h4, strong, b, .title, .post-title').first();
           
-          if (nearbyH2.length) {
-            title = nearbyH2.text().trim();
-          } else if (nearbyH3.length) {
-            title = nearbyH3.text().trim();
+          if (nearbyHeading.length) {
+            title = nearbyHeading.text().trim();
           }
         }
         
-        // If still no good title, use the URL path as a fallback
+        // If still no good title, extract from URL path
         if (!title || title.length < 5) {
-          const urlPath = new URL(href).pathname;
-          const pathParts = urlPath.split('/');
-          const slug = pathParts[pathParts.length - 1];
-          title = slug.replace(/-/g, ' ');
-          // Capitalize first letter of each word
-          title = title
-            .split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
+          try {
+            const urlPath = new URL(fullUrl).pathname;
+            const pathParts = urlPath.split('/').filter(part => part.length > 0);
+            const slug = pathParts[pathParts.length - 1];
+            title = slug.replace(/-/g, ' ');
+            // Capitalize first letter of each word
+            title = title
+              .split(' ')
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' ');
+          } catch (e) {
+            title = "Untitled Article";
+          }
         }
       }
       
       // Try to find date near the link
       let date = new Date().toISOString(); // Default to current date
       
-      // Get the month header if available
-      const monthHeader = link.closest('section').find('h3.monthHeader-nt8KgE').first();
-      if (monthHeader.length) {
-        const monthText = monthHeader.text().trim();
-        if (monthText) {
-          try {
-            // Parse month header (like "December 2024")
-            const parsedDate = new Date(monthText);
-            if (!isNaN(parsedDate.getTime())) {
-              date = parsedDate.toISOString();
+      // Look for date elements
+      const parentContainer = link.closest('div, article, section');
+      if (parentContainer) {
+        const dateEl = parentContainer.find('time, .date, .post-date, [datetime]').first();
+        if (dateEl.length) {
+          const dateAttr = dateEl.attr('datetime');
+          const dateText = dateEl.text().trim();
+          
+          if (dateAttr) {
+            try {
+              const parsedDate = new Date(dateAttr);
+              if (!isNaN(parsedDate.getTime())) {
+                date = parsedDate.toISOString();
+              }
+            } catch (e) {
+              // Ignore parsing errors
             }
-          } catch (e) {
-            // Ignore parsing errors
+          } else if (dateText) {
+            try {
+              const parsedDate = new Date(dateText);
+              if (!isNaN(parsedDate.getTime())) {
+                date = parsedDate.toISOString();
+              }
+            } catch (e) {
+              // Ignore parsing errors
+            }
           }
         }
       }
       
-      // Add to array and mark URL as processed
-      articleLinks.push({ url: href, title, date });
-      processedUrls.add(href);
+      // Add to article links if it looks legitimate
+      if (fullUrl.includes(SUBSTACK_URL) || fullUrl.includes('runthebusiness')) {
+        articleLinks.push({ url: fullUrl, title, date });
+        processedUrls.add(fullUrl);
+        processedUrls.add(href);
+      }
     });
     
     console.log(`Found ${articleLinks.length} unique article links on page ${pageNumber}`);
@@ -272,72 +335,73 @@ async function scrapeArchivePage(pageNumber: number): Promise<{
       }
     }
     
-    // Also try the standard archive pattern as a fallback
+    // Alternative approach - find all post div elements using a wider range of selectors
     if (articlesProcessed === 0) {
-      console.log("No articles processed with direct link extraction, trying fallback method");
+      console.log("Trying alternative post extraction method");
       
-      // Find all "Next" links to detect pagination
-      $('a').each((_, element) => {
-        const text = $(element).text().trim().toLowerCase();
-        if (text === 'next' || text === 'next page' || text === 'older') {
-          hasMorePages = true;
-        }
-      });
+      const posts = $(
+        'div.post, article, div.post-preview, div[class*="post"], ' +
+        'div[class*="article"], article[class*="post"], div.archive-item, ' +
+        'div.post-item, div.postitem, div.content-item'
+      );
       
-      // Extract direct links with '/p/' in the URL (substack post pattern)
-      $('a[href*="/p/"]').each((_, element) => {
-        const link = $(element);
-        const href = link.attr('href') || '';
+      console.log(`Found ${posts.length} potential post elements`);
+      
+      // Process posts found with regular selectors
+      for (let i = 0; i < posts.length; i++) {
+        const post = posts.eq(i);
         
-        // Skip comment links and already processed URLs
-        if (href.includes('/comments') || processedUrls.has(href)) {
-          return;
+        // Try multiple selectors for title, link, and date
+        const titleElement = post.find('h1, h2, h3, h4, .title, .post-title');
+        const linkElement = post.find('a[href*="/p/"], a[href*="runthebusiness"], a');
+        const dateElement = post.find('time, [datetime], .date, .post-date');
+        
+        const title = titleElement.text().trim() || `Article ${i+1}`;
+        const link = linkElement.attr('href');
+        
+        // Skip if no link or already processed
+        if (!link || processedUrls.has(link)) {
+          continue;
         }
         
-        const fullLink = href.startsWith('http') ? href : `${SUBSTACK_URL}${href}`;
-        const title = link.text().trim() || href.split('/').pop()?.replace(/-/g, ' ') || `Article`;
-        const pubDate = new Date().toISOString(); // Default to current date
+        const fullLink = link.startsWith('http') ? link : `${SUBSTACK_URL}${link.startsWith('/') ? link : `/${link}`}`;
         
-        if (fullLink && fullLink.includes('/p/')) {
-          console.log(`Processing direct link: ${title} - ${fullLink}`);
-          processArticle(fullLink, title, pubDate, fullLink).then(success => {
-            if (success) articlesProcessed++;
-          });
+        // Try to extract date information
+        let pubDate = new Date().toISOString();
+        if (dateElement.length) {
+          const dateAttr = dateElement.attr('datetime');
+          const dateText = dateElement.text().trim();
+          
+          if (dateAttr) {
+            try {
+              const parsedDate = new Date(dateAttr);
+              if (!isNaN(parsedDate.getTime())) {
+                pubDate = parsedDate.toISOString();
+              }
+            } catch (e) {
+              // Ignore parsing errors
+            }
+          } else if (dateText) {
+            try {
+              const parsedDate = new Date(dateText);
+              if (!isNaN(parsedDate.getTime())) {
+                pubDate = parsedDate.toISOString();
+              }
+            } catch (e) {
+              // Ignore parsing errors
+            }
+          }
         }
-      });
-    }
-    
-    // Find all post div elements
-    const posts = $('div.post-preview, div.post-item, article.post, div.archive-item');
-    
-    // Process posts found with regular selectors
-    for (let i = 0; i < posts.length; i++) {
-      const post = posts.eq(i);
-      
-      // Try multiple selectors for title, link, and date
-      const titleElement = post.find('h3.post-preview-title, h2, h3, .post-title');
-      const linkElement = post.find('a.post-preview-title-link, a[href*="/p/"], a');
-      const dateElement = post.find('div.post-preview-date, time, .post-date, .date');
-      
-      const title = titleElement.text().trim() || `Article ${i+1}`;
-      const link = linkElement.attr('href');
-      
-      // Skip if no link or already processed
-      if (!link || processedUrls.has(link)) {
-        continue;
-      }
-      
-      const fullLink = link.startsWith('http') ? link : `${SUBSTACK_URL}${link}`;
-      const pubDate = dateElement.text().trim() || new Date().toISOString();
-      
-      // Generate a guid from the URL
-      const guid = fullLink;
-      
-      if (title && fullLink) {
-        console.log(`Processing article: ${title}`);
-        const success = await processArticle(fullLink, title, pubDate, guid);
-        if (success) {
-          articlesProcessed++;
+        
+        // Generate a guid from the URL
+        const guid = fullLink;
+        
+        if (title && fullLink && (fullLink.includes(SUBSTACK_URL) || fullLink.includes('runthebusiness'))) {
+          console.log(`Processing article from post element: ${title}`);
+          const success = await processArticle(fullLink, title, pubDate, guid);
+          if (success) {
+            articlesProcessed++;
+          }
         }
       }
     }
@@ -346,8 +410,9 @@ async function scrapeArchivePage(pageNumber: number): Promise<{
       articles: articlesProcessed,
       hasMorePages
     };
-  } catch (error) {
-    console.error(`Error scraping archive page ${pageNumber}:`, error);
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    console.error(`Error scraping archive page ${pageNumber}: ${errorMessage}`);
     return {
       articles: 0,
       hasMorePages: false
@@ -362,24 +427,101 @@ export async function fetchMoreArticles(): Promise<{
   articlesAdded: number 
 }> {
   let totalArticlesAdded = 0;
-  let currentPage = 1;
-  let hasMorePages = true;
   
   console.log("Starting to fetch more articles from Substack archive...");
   
-  // Then process archive pages
-  while (hasMorePages && currentPage <= MAX_PAGES) {
+  // First, check how many articles we already have
+  const currentArticles = await storage.getArticles();
+  console.log(`Current articles in database: ${currentArticles.length}`);
+  
+  // Process archive pages - force check multiple pages even if pagination detection isn't working
+  // This ensures we don't miss older articles
+  for (let currentPage = 1; currentPage <= 5; currentPage++) {
+    console.log(`Checking archive page ${currentPage}...`);
     const result = await scrapeArchivePage(currentPage);
     totalArticlesAdded += result.articles;
-    hasMorePages = result.hasMorePages;
     
-    console.log(`Processed page ${currentPage}, added ${result.articles} articles. Has more pages: ${hasMorePages}`);
-    
-    // Move to next page
-    currentPage++;
+    console.log(`Processed page ${currentPage}, added ${result.articles} articles.`);
     
     // Add a delay to avoid overloading the server
     await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // If we didn't add any articles on this page and we're past page 2, we can stop
+    // (page 1 might be just recent articles we already have)
+    if (result.articles === 0 && currentPage > 2) {
+      console.log(`No new articles found on page ${currentPage}, stopping pagination check`);
+      break;
+    }
+  }
+  
+  // Also try a new approach: directly access post URLs by incremental IDs
+  console.log("Trying direct article ID approach...");
+  
+  // Substack often uses sequential IDs for posts
+  // Try a range of IDs to find older articles
+  const baseUrl = "https://runthebusiness.substack.com/p/";
+  const slugsToTry = [
+    // These are known article slugs from the blog
+    "invisible-career-asymptotes-part-1",
+    "creating-an-innovation-culture",
+    "why-youll-always-end-up-building-a-workflow",
+    "why-platform-ify",
+    "building-hardware",
+    "the-executive-mindset",
+    "when-the-users-were-right-all-along",
+    "upcoming-events-in-august",
+    "building-a-culture-of-innovation",
+    "organizing-knowledge-workers",
+    "managing-vs-making",
+    "aligning-high-performing-teams",
+    "how-to-prepare-for-product-manager-interviews",
+    "the-role-of-product-leadership",
+    // Additional potential article slugs
+    "the-product-managers-playbook",
+    "prioritizing-product-features",
+    "product-strategy-essentials",
+    "developing-customer-empathy",
+    "cross-functional-team-leadership",
+    "scaling-product-teams",
+    "product-launch-checklist",
+    "growth-metrics-that-matter",
+    "user-feedback-frameworks",
+    "roadmap-planning-techniques",
+    "from-idea-to-execution",
+    "managing-stakeholder-expectations",
+    "data-driven-product-decisions",
+    "user-research-methods",
+    "building-a-product-vision",
+    "value-proposition-design",
+    "pricing-strategies-for-products",
+    "agile-product-development",
+    "product-analytics-fundamentals",
+    "customer-journey-mapping"
+  ];
+  
+  for (const slug of slugsToTry) {
+    const url = `${baseUrl}${slug}`;
+    console.log(`Trying direct URL: ${url}`);
+    
+    try {
+      // Try to fetch article by constructing URL directly
+      const title = slug.replace(/-/g, ' ')
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+      
+      const success = await processArticle(url, title, new Date().toISOString(), url);
+      if (success) {
+        totalArticlesAdded++;
+      }
+      
+      // Add a delay to avoid overloading the server
+      await new Promise(resolve => setTimeout(resolve, 500));
+    } catch (err) {
+      // Handle error safely without accessing potentially undefined properties
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      console.log(`Failed to process ${url}: ${errorMessage}`);
+    }
   }
   
   // Update system status
