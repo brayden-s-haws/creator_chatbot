@@ -1,7 +1,12 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { CheckCircle, XCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CheckCircle, XCircle, RefreshCw, BookOpen, Loader2 } from "lucide-react";
 import { SystemStatusType } from "@shared/schema";
 import { formatDate } from "@/lib/utils";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 type SystemStatusProps = {
   status?: SystemStatusType;
@@ -12,6 +17,67 @@ export default function SystemStatus({ status }: SystemStatusProps) {
   const lastUpdated = status?.lastUpdated ? new Date(status.lastUpdated) : null;
   const nextUpdate = status?.nextUpdate ? new Date(status.nextUpdate) : null;
   const articlesIndexed = status?.articlesIndexed ?? 0;
+  
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  
+  // Define response types
+  type RefreshResponse = {
+    articlesAdded: number;
+    success?: boolean;
+  };
+  
+  type FetchMoreResponse = {
+    articlesAdded: number;
+    totalArticles: number;
+    success: boolean;
+  };
+  
+  // Refresh RSS content mutation
+  const refreshMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest<RefreshResponse>("POST", "/api/refresh");
+      return response;
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Content Refreshed",
+        description: `${data.articlesAdded || 0} new articles added from RSS feed.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/system-status"] });
+    },
+    onError: () => {
+      toast({
+        title: "Refresh Failed",
+        description: "Failed to refresh content from RSS feed.",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Fetch more articles mutation
+  const fetchMoreMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest<FetchMoreResponse>("POST", "/api/fetch-more-articles");
+      return response;
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Articles Fetched",
+        description: `${data.articlesAdded || 0} new articles added from archive.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/system-status"] });
+    },
+    onError: () => {
+      toast({
+        title: "Fetch Failed",
+        description: "Failed to fetch more articles from archive.",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  const isLoading = refreshMutation.isPending || fetchMoreMutation.isPending;
   
   return (
     <Card className="p-6">
@@ -54,6 +120,38 @@ export default function SystemStatus({ status }: SystemStatusProps) {
               {nextUpdate ? formatDate(nextUpdate) : "Not scheduled"}
             </span>
           </div>
+        </div>
+        
+        <div className="border-t border-slate-100 pt-3 mt-3 space-y-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full flex items-center justify-center"
+            onClick={() => refreshMutation.mutate()}
+            disabled={isLoading}
+          >
+            {refreshMutation.isPending ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4 mr-2" />
+            )}
+            Refresh RSS Content
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full flex items-center justify-center"
+            onClick={() => fetchMoreMutation.mutate()}
+            disabled={isLoading}
+          >
+            {fetchMoreMutation.isPending ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <BookOpen className="h-4 w-4 mr-2" />
+            )}
+            Fetch More Articles
+          </Button>
         </div>
       </div>
     </Card>

@@ -7,6 +7,7 @@ import { generateAnswer } from "./llm";
 import { createEmbedding } from "./embeddings";
 import { searchSimilarChunks } from "./vector-store";
 import { schedule } from "./worker";
+import { fetchMoreArticles } from "../scripts/fetch-more-articles";
 
 const router = express.Router();
 
@@ -46,15 +47,49 @@ router.post("/api/chat", async (req, res) => {
   }
 });
 
-// Trigger content refresh
+// Trigger content refresh from RSS feed
 router.post("/api/refresh", async (req, res) => {
   try {
     // Start RSS processing
     const result = await processRssAndUpdate();
+    
+    // Update system status
+    const now = new Date();
+    await storage.updateSystemStatus({
+      lastUpdated: now.toISOString(),
+      articlesIndexed: (await storage.getArticles()).length
+    });
+    
     return res.json(result);
   } catch (error) {
     console.error("Error refreshing content:", error);
     return res.status(500).json({ message: "Failed to refresh content" });
+  }
+});
+
+// Fetch additional articles from Substack archive
+router.post("/api/fetch-more-articles", async (req, res) => {
+  try {
+    console.log("Manual fetch of more articles requested");
+    
+    // Fetch from archive
+    const archiveResult = await fetchMoreArticles();
+    
+    // Update system status
+    const now = new Date();
+    await storage.updateSystemStatus({
+      lastUpdated: now.toISOString(),
+      articlesIndexed: (await storage.getArticles()).length
+    });
+    
+    return res.json({
+      success: true,
+      articlesAdded: archiveResult.articlesAdded,
+      totalArticles: (await storage.getArticles()).length
+    });
+  } catch (error) {
+    console.error("Error fetching more articles:", error);
+    return res.status(500).json({ message: "Failed to fetch more articles" });
   }
 });
 
