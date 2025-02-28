@@ -1,0 +1,63 @@
+
+> rest-express@1.0.0 dev
+Connected to PostgreSQL database
+Loaded 2 articles, 13 chunks, and 2 queries from file.
+Error during initial fetch: error: relation "articles" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async PostgresStorage.getArticles (/home/runner/workspace/server/storage.ts:36:12)
+    at async initialFetch (/home/runner/workspace/server/worker.ts:11:22)
+    at async schedule (/home/runner/workspace/server/worker.ts:29:3)
+    at async registerRoutes (/home/runner/workspace/server/routes.ts:80:3)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:41:18) {
+  length: 107,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '83',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+Content update worker scheduled (weekly on Sundays at 3 AM)
+/home/runner/workspace/node_modules/pg-pool/index.js:45
+    Error.captureStackTrace(err)
+          ^
+
+error: relation "vector_documents" does not exist
+    at /home/runner/workspace/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/node_modules/src/node-postgres/session.ts:104:19)
+    at async initializeVectorStore (/home/runner/workspace/server/vector-store.ts:135:26)
+    at async <anonymous> (/home/runner/workspace/server/vector-store.ts:245:3) {
+  length: 115,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '54',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+
+Node.js v20.18.1
+Failed running 'server/index.ts'
