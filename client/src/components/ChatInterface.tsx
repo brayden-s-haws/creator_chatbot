@@ -37,8 +37,13 @@ export default function ChatInterface() {
 
   const chatMutation = useMutation({
     mutationFn: async (message: string) => {
-      const response = await apiRequest("POST", "/api/chat", { message });
-      return response.json();
+      try {
+        const response = await apiRequest("POST", "/api/chat", { message });
+        return response;
+      } catch (error) {
+        console.error("Error in chat mutation:", error);
+        throw error;
+      }
     },
     onSuccess: (data: MessageType) => {
       setMessages((prev) => [...prev, data]);
@@ -49,7 +54,7 @@ export default function ChatInterface() {
       setIsTyping(false);
       toast({
         title: "Error",
-        description: `Failed to send message: ${error.message}`,
+        description: `Failed to send message: ${error.message || "Unknown error"}`,
         variant: "destructive",
       });
     },

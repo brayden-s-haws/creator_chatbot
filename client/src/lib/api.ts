@@ -2,20 +2,27 @@ import { MessageType } from "@shared/schema";
 
 // Helper function to make API requests
 export async function fetchChat(message: string): Promise<MessageType> {
-  const response = await fetch("/api/chat", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ message }),
-  });
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message }),
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || "Failed to get response");
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to get response");
+    }
+
+    // Parse the JSON response explicitly
+    const data = await response.json();
+    return data;
+  } catch (error: any) {
+    console.error("Error in fetchChat:", error);
+    throw new Error("Failed to send message: " + (error.message || "Unknown error"));
   }
-
-  return response.json();
 }
 
 // Helper function to get system status

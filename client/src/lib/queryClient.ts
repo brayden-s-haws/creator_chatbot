@@ -12,21 +12,30 @@ export async function apiRequest<T = any>(
   url: string,
   data?: unknown | undefined,
 ): Promise<T> {
-  const res = await fetch(url, {
-    method,
-    headers: data ? { "Content-Type": "application/json" } : {},
-    body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
-  });
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: data ? { "Content-Type": "application/json" } : {},
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: "include",
+    });
 
-  await throwIfResNotOk(res);
-  const contentType = res.headers.get("content-type");
-  
-  if (contentType?.includes("application/json")) {
-    return await res.json() as T;
+    await throwIfResNotOk(res);
+    const contentType = res.headers.get("content-type");
+    
+    if (contentType?.includes("application/json")) {
+      return await res.json() as T;
+    }
+    
+    if (contentType?.includes("text/plain")) {
+      return await res.text() as unknown as T;
+    }
+    
+    return res as unknown as T;
+  } catch (error: any) {
+    console.error(`API Request error (${method} ${url}):`, error);
+    throw error;
   }
-  
-  return res as unknown as T;
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
