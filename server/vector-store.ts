@@ -1,9 +1,5 @@
-
 import { storage } from "./storage";
 import { cosineSimilarity } from "./embeddings";
-import { getDb } from "./db";
-import * as schema from "../shared/schema";
-import { eq } from "drizzle-orm";
 import fs from "fs/promises";
 import path from "path";
 
@@ -19,8 +15,8 @@ interface VectorDocument {
   };
 }
 
-// Fallback in-memory vector store when DB is not available
-let memoryVectorStore: VectorDocument[] = [];
+// In-memory vector store
+let vectorStore: VectorDocument[] = [];
 
 const dataDir = path.join(process.cwd(), "data");
 const vectorStorePath = path.join(dataDir, "vector-store.json");
@@ -29,48 +25,19 @@ const vectorStorePath = path.join(dataDir, "vector-store.json");
  * Add a document to the vector store
  */
 export async function addDocumentToVectorStore(document: VectorDocument): Promise<void> {
-  const db = getDb();
+  // Check if document already exists
+  const existingIndex = vectorStore.findIndex(doc => doc.id === document.id);
   
-  if (db) {
-    // Use PostgreSQL
-    const existingDocs = await db.select()
-      .from(schema.vectorDocuments)
-      .where(eq(schema.vectorDocuments.id, document.id));
-    
-    if (existingDocs.length > 0) {
-      // Update existing document
-      await db.update(schema.vectorDocuments)
-        .set({
-          content: document.content,
-          embedding: document.embedding,
-          metadata: document.metadata
-        })
-        .where(eq(schema.vectorDocuments.id, document.id));
-    } else {
-      // Insert new document
-      await db.insert(schema.vectorDocuments).values({
-        id: document.id,
-        content: document.content,
-        embedding: document.embedding,
-        metadata: document.metadata
-      });
-    }
+  if (existingIndex !== -1) {
+    // Replace existing document
+    vectorStore[existingIndex] = document;
   } else {
-    // Use in-memory storage with file persistence
-    // Check if document already exists
-    const existingIndex = memoryVectorStore.findIndex(doc => doc.id === document.id);
-    
-    if (existingIndex !== -1) {
-      // Replace existing document
-      memoryVectorStore[existingIndex] = document;
-    } else {
-      // Add new document
-      memoryVectorStore.push(document);
-    }
-    
-    // Save to file
-    await saveVectorStore();
+    // Add new document
+    vectorStore.push(document);
   }
+  
+  // Save to file
+  await saveVectorStore();
 }
 
 /**
@@ -81,126 +48,62 @@ export async function searchSimilarChunks(
   limit: number = 5,
   similarityThreshold: number = 0.7
 ): Promise<VectorDocument[]> {
-  const db = getDb();
+  // Calculate similarity scores
+  const scoredDocuments = vectorStore.map(doc => ({
+    ...doc,
+    score: cosineSimilarity(queryEmbedding, doc.embedding),
+  }));
   
-  if (db) {
-    // Use PostgreSQL
-    // Since we can't easily calculate cosine similarity in SQL,
-    // we'll fetch all documents and calculate locally
-    const allDocs = await db.select().from(schema.vectorDocuments);
-    
-    // Calculate similarity scores
-    const scoredDocuments = allDocs.map(doc => ({
-      id: doc.id,
-      content: doc.content,
-      embedding: doc.embedding as number[],
-      metadata: doc.metadata as VectorDocument['metadata'],
-      score: cosineSimilarity(queryEmbedding, doc.embedding as number[])
-    }));
-    
-    // Sort by similarity score (descending)
-    scoredDocuments.sort((a, b) => b.score - a.score);
-    
-    // Filter by threshold and limit
-    return scoredDocuments
-      .filter(doc => doc.score >= similarityThreshold)
-      .slice(0, limit);
-  } else {
-    // Use in-memory store
-    // Calculate similarity scores
-    const scoredDocuments = memoryVectorStore.map(doc => ({
-      ...doc,
-      score: cosineSimilarity(queryEmbedding, doc.embedding),
-    }));
-    
-    // Sort by similarity score (descending)
-    scoredDocuments.sort((a, b) => b.score - a.score);
-    
-    // Filter by threshold and limit
-    return scoredDocuments
-      .filter(doc => doc.score >= similarityThreshold)
-      .slice(0, limit);
-  }
+  // Sort by similarity score (descending)
+  scoredDocuments.sort((a, b) => b.score - a.score);
+  
+  // Filter by threshold and limit
+  return scoredDocuments
+    .filter(doc => doc.score >= similarityThreshold)
+    .slice(0, limit);
 }
 
 /**
  * Initialize vector store from content chunks
  */
 export async function initializeVectorStore(): Promise<void> {
-  const db = getDb();
+  // First try to load from file
+  await loadVectorStore();
   
-  if (db) {
-    // Use PostgreSQL
-    // Check if we have any documents
-    const existingDocs = await db.select({ count: schema.vectorDocuments }).from(schema.vectorDocuments);
+  // If vector store is empty, rebuild from content chunks
+  if (vectorStore.length === 0) {
+    console.log("Rebuilding vector store from content chunks...");
     
-    if (existingDocs.length === 0 || existingDocs[0].count === 0) {
-      console.log("Rebuilding vector store from content chunks...");
-      
-      const contentChunks = await storage.getContentChunks();
-      const articles = await storage.getArticles();
-      const articlesMap = new Map(articles.map(article => [article.id, article]));
-      
-      for (const chunk of contentChunks) {
-        const article = articlesMap.get(chunk.articleId);
-        
-        if (article && chunk.embedding) {
-          await db.insert(schema.vectorDocuments).values({
-            id: `chunk-${chunk.id}`,
-            content: chunk.content,
-            embedding: chunk.embedding as number[],
-            metadata: {
-              articleId: article.id,
-              title: article.title,
-              url: article.url,
-            }
-          });
-        }
-      }
-      
-      const count = await db.select({ count: schema.vectorDocuments }).from(schema.vectorDocuments);
-      console.log(`Vector store initialized with ${count[0].count} documents`);
-    }
-  } else {
-    // Use in-memory with file persistence
-    // First try to load from file
-    await loadVectorStore();
+    const contentChunks = await storage.getContentChunks();
+    const articles = await storage.getArticles();
+    const articlesMap = new Map(articles.map(article => [article.id, article]));
     
-    // If vector store is empty, rebuild from content chunks
-    if (memoryVectorStore.length === 0) {
-      console.log("Rebuilding vector store from content chunks...");
+    for (const chunk of contentChunks) {
+      const article = articlesMap.get(chunk.articleId);
       
-      const contentChunks = await storage.getContentChunks();
-      const articles = await storage.getArticles();
-      const articlesMap = new Map(articles.map(article => [article.id, article]));
-      
-      for (const chunk of contentChunks) {
-        const article = articlesMap.get(chunk.articleId);
-        
-        if (article && chunk.embedding) {
-          memoryVectorStore.push({
-            id: `chunk-${chunk.id}`,
-            content: chunk.content,
-            embedding: chunk.embedding as number[],
-            metadata: {
-              articleId: article.id,
-              title: article.title,
-              url: article.url,
-            },
-          });
-        }
+      if (article && chunk.embedding) {
+        vectorStore.push({
+          id: `chunk-${chunk.id}`,
+          content: chunk.content,
+          embedding: chunk.embedding as number[],
+          metadata: {
+            articleId: article.id,
+            title: article.title,
+            url: article.url,
+          },
+        });
       }
-      
-      console.log(`Vector store initialized with ${memoryVectorStore.length} documents`);
-      
-      // Save to file
-      await saveVectorStore();
     }
+    
+    console.log(`Vector store initialized with ${vectorStore.length} documents`);
+    
+    // Save to file
+    await saveVectorStore();
   }
 }
 
 /**
- * Save vector store to file (only used for in-memory fallback)
+ * Save vector store to file
  */
 async function saveVectorStore(): Promise<void> {
   try {
@@ -210,7 +113,7 @@ async function saveVectorStore(): Promise<void> {
     // Write to file
     await fs.writeFile(
       vectorStorePath,
-      JSON.stringify(memoryVectorStore, null, 2)
+      JSON.stringify(vectorStore, null, 2)
     );
   } catch (error) {
     console.error("Failed to save vector store to file:", error);
@@ -218,7 +121,7 @@ async function saveVectorStore(): Promise<void> {
 }
 
 /**
- * Load vector store from file (only used for in-memory fallback)
+ * Load vector store from file
  */
 async function loadVectorStore(): Promise<void> {
   try {
@@ -232,9 +135,9 @@ async function loadVectorStore(): Promise<void> {
     
     // Read and parse data
     const content = await fs.readFile(vectorStorePath, "utf-8");
-    memoryVectorStore = JSON.parse(content);
+    vectorStore = JSON.parse(content);
     
-    console.log(`Loaded ${memoryVectorStore.length} documents from vector store file.`);
+    console.log(`Loaded ${vectorStore.length} documents from vector store file.`);
   } catch (error) {
     console.error("Failed to load vector store from file:", error);
   }
