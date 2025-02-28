@@ -83,8 +83,9 @@ async function extractArticleContent(url: string): Promise<string> {
 
 /**
  * Split article content into chunks
+ * Export this function so it can be used by other modules
  */
-function splitContentIntoChunks(content: string, maxChunkSize: number = 500): string[] {
+export function splitContentIntoChunks(content: string, maxChunkSize: number = 500): string[] {
   // Split by paragraphs first
   const paragraphs = content.split(/\n\s*\n/);
   const chunks: string[] = [];
