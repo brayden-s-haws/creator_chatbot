@@ -85,26 +85,55 @@ export async function addDocumentToVectorStore(document: {
 export async function searchSimilarChunks(
   queryEmbedding: number[],
   limit: number = 5,
-  similarityThreshold: number = 0.7
+  similarityThreshold: number = 0.6 // Lowered threshold to get more results
 ): Promise<VectorDocumentWithScore[]> {
+  console.log(`Searching for similar chunks with threshold ${similarityThreshold}`);
+  
   // Make sure cache is initialized
   if (!cacheInitialized) {
+    console.log("Cache not initialized, refreshing...");
     await refreshCache();
   }
   
+  console.log(`Vector cache has ${vectorCache.length} documents`);
+  
+  // Check if embeddings in the cache are arrays
+  const validDocs = vectorCache.filter(doc => Array.isArray(doc.embedding) && doc.embedding.length > 0);
+  console.log(`Found ${validDocs.length} documents with valid embeddings`);
+  
+  if (validDocs.length === 0) {
+    console.log("No valid embeddings found in the cache");
+    return [];
+  }
+  
   // Calculate similarity scores using in-memory cache for performance
-  const scoredDocuments = vectorCache.map(doc => ({
-    ...doc,
-    score: cosineSimilarity(queryEmbedding, doc.embedding),
-  }));
+  const scoredDocuments = validDocs.map(doc => {
+    const score = cosineSimilarity(queryEmbedding, doc.embedding);
+    return {
+      ...doc,
+      score,
+    };
+  });
+  
+  // Log the top scores for debugging
+  const topScores = [...scoredDocuments]
+    .sort((a, b) => (b.score || 0) - (a.score || 0))
+    .slice(0, 5)
+    .map(doc => `${doc.documentId}: ${doc.score?.toFixed(4)}`);
+  
+  console.log("Top similarity scores:", topScores);
   
   // Sort by similarity score (descending)
   scoredDocuments.sort((a, b) => (b.score || 0) - (a.score || 0));
   
   // Filter by threshold and limit
-  return scoredDocuments
+  const results = scoredDocuments
     .filter(doc => (doc.score || 0) >= similarityThreshold)
     .slice(0, limit);
+  
+  console.log(`Returning ${results.length} similar chunks above threshold ${similarityThreshold}`);
+  
+  return results;
 }
 
 /**
@@ -164,11 +193,63 @@ async function refreshCache(): Promise<void> {
     // Get all vector documents from database
     const documents = await db.select().from(vectorDocuments);
     
+    // Check first document to understand embedding format
+    if (documents.length > 0) {
+      const firstDoc = documents[0];
+      console.log("First document embedding type:", typeof firstDoc.embedding);
+      console.log("First document embedding is array?", Array.isArray(firstDoc.embedding));
+      
+      if (!Array.isArray(firstDoc.embedding) && typeof firstDoc.embedding === 'string') {
+        try {
+          // Try to parse if it's a JSON string
+          console.log("Attempting to parse embedding as JSON string");
+          const parsed = JSON.parse(firstDoc.embedding);
+          console.log("Parsed successfully:", Array.isArray(parsed));
+        } catch (e) {
+          console.log("Not a valid JSON string");
+        }
+      }
+    }
+    
     // Update cache with proper type conversion for embeddings
-    vectorCache = documents.map(doc => ({
-      ...doc,
-      embedding: Array.isArray(doc.embedding) ? doc.embedding : []
-    }));
+    vectorCache = documents.map(doc => {
+      let embeddingArray = [];
+      
+      // Handle different possible formats of the embedding data
+      if (Array.isArray(doc.embedding)) {
+        embeddingArray = doc.embedding;
+      } else if (typeof doc.embedding === 'string') {
+        try {
+          // Try to parse if it's a JSON string
+          const parsed = JSON.parse(doc.embedding);
+          if (Array.isArray(parsed)) {
+            embeddingArray = parsed;
+          }
+        } catch (e) {
+          // Not a valid JSON string, ignore
+        }
+      } else if (doc.embedding && typeof doc.embedding === 'object') {
+        // If it's an object with array-like properties
+        try {
+          embeddingArray = Object.values(doc.embedding);
+        } catch (e) {
+          // Unable to extract values
+        }
+      }
+      
+      return {
+        ...doc,
+        embedding: embeddingArray
+      };
+    });
+    
+    // Log vector cache stats
+    const validEmbeddings = vectorCache.filter(doc => 
+      Array.isArray(doc.embedding) && doc.embedding.length > 0
+    ).length;
+    
+    console.log(`Vector cache loaded: ${documents.length} total, ${validEmbeddings} with valid embeddings`);
+    
     cacheInitialized = true;
     
     log(`Refreshed vector cache with ${documents.length} documents`, "vector-store");
