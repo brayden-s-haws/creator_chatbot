@@ -8,7 +8,7 @@
     "build": "tsc && vite build",
     "start": "node dist/server/index.js",
     "migration:generate": "drizzle-kit generate:pg",
-    "migration:run": "ts-node server/migrate.ts"
+    "migration:run": "tsx server/migrate.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
