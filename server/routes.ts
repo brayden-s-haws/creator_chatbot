@@ -8,6 +8,7 @@ import { createEmbedding } from "./embeddings";
 import { searchSimilarChunks } from "./vector-store";
 import { schedule } from "./worker";
 import { fetchMoreArticles } from "../scripts/fetch-more-articles";
+import { handleCsvUpload, processExistingCsvFile } from "./import-api";
 
 const router = express.Router();
 
@@ -112,6 +113,46 @@ router.get("/api/system-status", async (req, res) => {
   } catch (error) {
     console.error("Error fetching system status:", error);
     return res.status(500).json({ message: "Failed to get system status" });
+  }
+});
+
+// Import articles from CSV upload
+router.post("/api/import-csv", handleCsvUpload);
+
+// Process an existing CSV file on the server
+router.post("/api/process-csv", async (req, res) => {
+  processExistingCsvFile(req, res);
+});
+
+// Import sample articles for testing
+router.post("/api/import-sample", async (req, res) => {
+  try {
+    const sampleFile = "data/articles-sample.csv";
+    
+    // Send immediate response
+    res.json({
+      success: true,
+      message: "Processing sample articles. This will continue in the background.",
+      inProgress: true
+    });
+    
+    // Process in background
+    import('../scripts/import-from-csv')
+      .then(module => {
+        return module.importArticlesFromCsv(sampleFile);
+      })
+      .then(result => {
+        console.log(`Sample CSV import completed. Added ${result.articlesAdded} articles and ${result.chunksAdded} chunks.`);
+      })
+      .catch(error => {
+        console.error("Error importing sample articles:", error);
+      });
+  } catch (error) {
+    console.error("Error starting sample import:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to start sample import"
+    });
   }
 });
 

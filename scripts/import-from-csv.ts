@@ -51,7 +51,8 @@ export async function importArticlesFromCsv(csvFilePath: string): Promise<{
   const errors: string[] = [];
 
   // Process each article
-  for (const [index, record] of records.entries()) {
+  for (let index = 0; index < records.length; index++) {
+    const record = records[index];
     try {
       console.log(`Processing article ${index + 1}/${records.length}: ${record.title}`);
       
