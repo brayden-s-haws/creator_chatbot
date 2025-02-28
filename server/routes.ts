@@ -72,24 +72,35 @@ router.post("/api/fetch-more-articles", async (req, res) => {
   try {
     console.log("Manual fetch of more articles requested");
     
-    // Fetch from archive
-    const archiveResult = await fetchMoreArticles();
-    
-    // Update system status
-    const now = new Date();
-    await storage.updateSystemStatus({
-      lastUpdated: now.toISOString(),
-      articlesIndexed: (await storage.getArticles()).length
-    });
-    
-    return res.json({
+    // Send an immediate response to prevent timeout
+    res.json({
       success: true,
-      articlesAdded: archiveResult.articlesAdded,
-      totalArticles: (await storage.getArticles()).length
+      message: "Article fetch process started in background",
+      inProgress: true
     });
+    
+    // Then continue processing in the background
+    fetchMoreArticles()
+      .then(async (archiveResult) => {
+        // Update system status
+        const now = new Date();
+        await storage.updateSystemStatus({
+          lastUpdated: now.toISOString(),
+          articlesIndexed: (await storage.getArticles()).length
+        });
+        
+        console.log(`Background article fetch completed. Added ${archiveResult.articlesAdded} articles.`);
+      })
+      .catch(error => {
+        console.error("Error in background article fetch:", error);
+      });
+      
   } catch (error) {
-    console.error("Error fetching more articles:", error);
-    return res.status(500).json({ message: "Failed to fetch more articles" });
+    console.error("Error starting article fetch:", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Failed to start article fetch process" 
+    });
   }
 });
 

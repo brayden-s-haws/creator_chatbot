@@ -443,8 +443,8 @@ export async function fetchMoreArticles(): Promise<{
     
     console.log(`Processed page ${currentPage}, added ${result.articles} articles.`);
     
-    // Add a delay to avoid overloading the server
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Add a longer delay to avoid rate limiting (Too Many Requests)
+    await new Promise(resolve => setTimeout(resolve, 5000));
     
     // If we didn't add any articles on this page and we're past page 2, we can stop
     // (page 1 might be just recent articles we already have)
@@ -457,10 +457,19 @@ export async function fetchMoreArticles(): Promise<{
   // Also try a new approach: directly access post URLs by incremental IDs
   console.log("Trying direct article ID approach...");
   
-  // Substack often uses sequential IDs for posts
-  // Try a range of IDs to find older articles
+  // Get a list of all existing articles to avoid trying those again
+  const existingArticles = await storage.getArticles();
+  const existingUrls = new Set(existingArticles.map(article => article.url));
+  const existingGuids = new Set(existingArticles.map(article => article.guid));
+  
+  console.log(`Avoiding ${existingUrls.size} already indexed URLs`);
+  
+  // Try a more strategic approach to find older articles
+  // We'll prioritize known article slugs rather than guessing
   const baseUrl = "https://runthebusiness.substack.com/p/";
-  const slugsToTry = [
+  
+  // Create a list of high-priority, confirmed article slugs
+  const confirmedSlugs = [
     // These are known article slugs from the blog
     "invisible-career-asymptotes-part-1",
     "creating-an-innovation-culture",
@@ -471,33 +480,45 @@ export async function fetchMoreArticles(): Promise<{
     "when-the-users-were-right-all-along",
     "upcoming-events-in-august",
     "building-a-culture-of-innovation",
-    "organizing-knowledge-workers",
+    "organizing-knowledge-workers", 
     "managing-vs-making",
     "aligning-high-performing-teams",
-    "how-to-prepare-for-product-manager-interviews",
-    "the-role-of-product-leadership",
-    // Additional potential article slugs
-    "the-product-managers-playbook",
-    "prioritizing-product-features",
-    "product-strategy-essentials",
-    "developing-customer-empathy",
-    "cross-functional-team-leadership",
-    "scaling-product-teams",
-    "product-launch-checklist",
-    "growth-metrics-that-matter",
-    "user-feedback-frameworks",
-    "roadmap-planning-techniques",
-    "from-idea-to-execution",
-    "managing-stakeholder-expectations",
-    "data-driven-product-decisions",
-    "user-research-methods",
-    "building-a-product-vision",
-    "value-proposition-design",
-    "pricing-strategies-for-products",
-    "agile-product-development",
-    "product-analytics-fundamentals",
-    "customer-journey-mapping"
+    // Known articles mentioned in content
+    "the-product-maker-spectrum",
+    "why-product-strategy-is-harder-than-you-think",
+    "what-makes-a-strong-product-leader"
   ];
+  
+  // Only process the slugs we haven't already indexed
+  const slugsToTry = confirmedSlugs.filter(slug => {
+    const url = `${baseUrl}${slug}`;
+    return !existingUrls.has(url) && !existingGuids.has(url);
+  });
+  
+  console.log(`Will try ${slugsToTry.length} new article slugs`);
+  
+  // If we have very few articles, also try some educated guesses - but only process 5 at a time
+  // to avoid rate limits
+  if (existingArticles.length < 30) {
+    const additionalSlugs = [
+      // Educated guesses based on themes in the blog
+      "the-product-managers-playbook",
+      "prioritizing-product-features",
+      "product-strategy-essentials",
+      "developing-customer-empathy",
+      "cross-functional-team-leadership"
+    ];
+    
+    // Only add slugs we haven't already checked
+    for (const slug of additionalSlugs) {
+      const url = `${baseUrl}${slug}`;
+      if (!existingUrls.has(url) && !existingGuids.has(url) && !slugsToTry.includes(slug)) {
+        slugsToTry.push(slug);
+        // Limit to 5 educated guesses per run to avoid rate limits
+        if (slugsToTry.length >= confirmedSlugs.length + 5) break;
+      }
+    }
+  }
   
   for (const slug of slugsToTry) {
     const url = `${baseUrl}${slug}`;
@@ -515,8 +536,8 @@ export async function fetchMoreArticles(): Promise<{
         totalArticlesAdded++;
       }
       
-      // Add a delay to avoid overloading the server
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Add a longer delay to avoid rate limiting (Too Many Requests)
+      await new Promise(resolve => setTimeout(resolve, 3000));
     } catch (err) {
       // Handle error safely without accessing potentially undefined properties
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
