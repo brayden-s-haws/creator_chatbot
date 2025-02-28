@@ -108,12 +108,14 @@ export async function importArticlesFromCsv(csvFilePath: string): Promise<{
           
           // Add to vector store
           await addDocumentToVectorStore({
-            documentId: uuidv4(),
+            id: uuidv4(),
             content: chunkContent,
             embedding: embedding,
-            articleId: article.id,
-            title: article.title,
-            url: article.url,
+            metadata: {
+              articleId: article.id,
+              title: article.title,
+              url: article.url,
+            }
           });
           
           chunksAdded++;

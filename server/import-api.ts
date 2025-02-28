@@ -1,36 +1,37 @@
-import { importArticlesFromCsv } from '../scripts/import-from-csv';
 import { Request, Response } from 'express';
+import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
-import multer from 'multer';
-import { ensureDataDir } from './file-persister';
+import { importArticlesFromCsv } from '../scripts/import-from-csv';
+import { v4 as uuidv4 } from 'uuid';
+import { storage } from './storage';
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: async (req, file, cb) => {
-    await ensureDataDir();
-    cb(null, path.join(process.cwd(), 'data'));
-  },
-  filename: (req, file, cb) => {
-    // Use timestamp to ensure unique names
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'articles-' + uniqueSuffix + '.csv');
-  }
-});
-
-const upload = multer({ 
-  storage,
+// Configure multer for temporary file storage
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      const uploadDir = path.join(process.cwd(), 'data', 'uploads');
+      // Create directory if it doesn't exist
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+      cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+      // Generate unique filename to prevent collisions
+      const uniqueName = `${Date.now()}-${uuidv4()}-${file.originalname}`;
+      cb(null, uniqueName);
+    }
+  }),
   limits: {
-    fileSize: 10 * 1024 * 1024, // Limit to 10MB
+    fileSize: 10 * 1024 * 1024, // 10MB max file size
   },
   fileFilter: (req, file, cb) => {
-    // Accept only csv files
-    if (file.mimetype === 'text/csv' || 
-        file.originalname.endsWith('.csv')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only CSV files are allowed'));
+    // Only accept CSV files
+    if (file.mimetype !== 'text/csv' && !file.originalname.endsWith('.csv')) {
+      return cb(new Error('Only CSV files are allowed'));
     }
+    cb(null, true);
   }
 });
 
@@ -39,64 +40,45 @@ const upload = multer({
  */
 export async function handleCsvUpload(req: Request, res: Response) {
   try {
-    // Process the uploaded file
+    // Use multer to process the file upload
     const uploadMiddleware = upload.single('file');
     
     uploadMiddleware(req, res, async (err) => {
       if (err) {
-        console.error('Error uploading file:', err);
-        return res.status(400).json({ 
+        console.error('File upload error:', err);
+        return res.status(400).send({ 
           success: false, 
           message: err.message || 'Error uploading file' 
         });
       }
       
+      // Check if a file was uploaded
       if (!req.file) {
-        return res.status(400).json({ 
+        return res.status(400).send({ 
           success: false, 
-          message: 'No file uploaded' 
+          message: 'No file was uploaded' 
         });
       }
       
-      const filePath = req.file.path;
-      console.log(`Processing uploaded CSV file: ${filePath}`);
-      
-      // Send immediate response to prevent timeout
-      res.json({
-        success: true,
-        message: 'File uploaded successfully. Processing will continue in the background.',
-        filename: req.file.originalname,
-        inProgress: true
-      });
-      
       // Process the CSV file in the background
-      importArticlesFromCsv(filePath)
-        .then(result => {
-          console.log(`CSV import completed. Added ${result.articlesAdded} articles and ${result.chunksAdded} chunks.`);
-          
-          // Clean up the uploaded file
-          fs.unlink(filePath, (unlinkErr) => {
-            if (unlinkErr) {
-              console.error(`Error deleting uploaded file ${filePath}:`, unlinkErr);
-            }
-          });
-        })
-        .catch(importErr => {
-          console.error('Error processing CSV file:', importErr);
-          
-          // Still try to clean up on error
-          fs.unlink(filePath, (unlinkErr) => {
-            if (unlinkErr) {
-              console.error(`Error deleting uploaded file ${filePath}:`, unlinkErr);
-            }
-          });
-        });
+      const filePath = req.file.path;
+      console.log(`CSV file uploaded: ${filePath}`);
+      
+      // Start background processing
+      processCsvInBackground(filePath);
+      
+      // Return success immediately
+      res.status(200).send({ 
+        success: true, 
+        message: 'File uploaded successfully. Processing started in background.',
+        filePath: req.file.originalname
+      });
     });
   } catch (error) {
-    console.error('Unexpected error in handleCsvUpload:', error);
-    return res.status(500).json({ 
+    console.error('CSV upload error:', error);
+    res.status(500).send({ 
       success: false, 
-      message: 'Server error processing upload' 
+      message: error instanceof Error ? error.message : 'Error processing upload' 
     });
   }
 }
@@ -106,48 +88,71 @@ export async function handleCsvUpload(req: Request, res: Response) {
  */
 export async function processExistingCsvFile(req: Request, res: Response) {
   try {
-    const { filename } = req.body;
+    // For a demo/sample import, use the sample file path
+    const sampleFilePath = path.join(process.cwd(), 'data', 'sample-articles.csv');
     
-    if (!filename) {
-      return res.status(400).json({ 
+    // Check if sample file exists
+    if (!fs.existsSync(sampleFilePath)) {
+      return res.status(404).send({ 
         success: false, 
-        message: 'Filename is required' 
+        message: 'Sample file not found' 
       });
     }
     
-    // Ensure file is within the data directory for security
-    const filePath = path.join(process.cwd(), 'data', filename);
+    // Start background processing
+    processCsvInBackground(sampleFilePath);
     
-    // Check if file exists
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ 
-        success: false, 
-        message: `File not found: ${filename}` 
-      });
-    }
-    
-    // Send immediate response to prevent timeout
-    res.json({
-      success: true,
-      message: 'Processing started. This will continue in the background.',
-      filename,
-      inProgress: true
+    res.status(200).send({ 
+      success: true, 
+      message: 'Sample import started in background'
     });
-    
-    // Process the CSV file in the background
-    importArticlesFromCsv(filePath)
-      .then(result => {
-        console.log(`CSV import from existing file completed. Added ${result.articlesAdded} articles and ${result.chunksAdded} chunks.`);
-      })
-      .catch(importErr => {
-        console.error(`Error processing existing CSV file ${filePath}:`, importErr);
-      });
-      
   } catch (error) {
-    console.error('Unexpected error in processExistingCsvFile:', error);
-    return res.status(500).json({ 
+    console.error('Sample import error:', error);
+    res.status(500).send({ 
       success: false, 
-      message: 'Server error processing file' 
+      message: error instanceof Error ? error.message : 'Error processing sample import' 
     });
+  }
+}
+
+/**
+ * Process CSV file in a background process
+ */
+async function processCsvInBackground(filePath: string) {
+  try {
+    console.log(`Starting background processing of CSV file: ${filePath}`);
+    
+    // Update system status to indicate processing is in progress
+    await storage.updateSystemStatus({
+      lastUpdated: new Date().toISOString(),
+      nextUpdate: 'CSV import in progress'
+    });
+    
+    // Process the CSV file
+    setTimeout(async () => {
+      try {
+        console.log('Background CSV processing started');
+        const result = await importArticlesFromCsv(filePath);
+        
+        console.log(`Background processing completed: ${result.articlesAdded} articles, ${result.chunksAdded} chunks`);
+        
+        // Clean up the temporary file if it's in the uploads directory
+        if (filePath.includes('uploads')) {
+          fs.unlinkSync(filePath);
+          console.log(`Deleted temporary file: ${filePath}`);
+        }
+        
+        // Update system status
+        await storage.updateSystemStatus({
+          lastUpdated: new Date().toISOString(),
+          articlesIndexed: (await storage.getArticles()).length
+        });
+      } catch (processError) {
+        console.error('Error in background CSV processing:', processError);
+      }
+    }, 100); // Start after a small delay
+    
+  } catch (error) {
+    console.error('Background processing error:', error);
   }
 }

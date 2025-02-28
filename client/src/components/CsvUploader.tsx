@@ -32,10 +32,19 @@ export default function CsvUploader() {
   // CSV upload mutation
   const uploadMutation = useMutation({
     mutationFn: async (formData: FormData) => {
-      return apiRequest<any>('POST', '/api/import-csv', formData, {
-        // Don't set Content-Type for multipart/form-data
-        // Browser will set it correctly with boundary
+      // Using fetch directly for FormData since our apiRequest doesn't support it well
+      const response = await fetch('/api/import-csv', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
       });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to upload file');
+      }
+      
+      return response.json();
     },
     onSuccess: (_data) => {
       toast({
@@ -68,7 +77,18 @@ export default function CsvUploader() {
   // Sample import mutation
   const sampleMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest<any>('POST', '/api/import-sample');
+      const response = await fetch('/api/import-sample', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to import sample articles');
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
       toast({

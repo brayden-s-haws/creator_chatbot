@@ -6,10 +6,11 @@ import SuggestedQuestions from "@/components/SuggestedQuestions";
 import SystemStatus from "@/components/SystemStatus";
 import CsvUploader from "@/components/CsvUploader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SystemStatusType } from "@shared/schema";
 
 export default function Home() {
   // Fetch system status when the component mounts
-  const { data: systemStatus } = useQuery({
+  const { data: systemStatus } = useQuery<SystemStatusType>({
     queryKey: ["/api/system-status"],
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
