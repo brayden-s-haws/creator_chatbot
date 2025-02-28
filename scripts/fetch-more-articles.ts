@@ -495,7 +495,11 @@ export async function fetchMoreArticles(): Promise<{
     return !existingUrls.has(url) && !existingGuids.has(url);
   });
   
-  console.log(`Will try ${slugsToTry.length} new article slugs`);
+  console.log(`Will try ${slugsToTry.length} new article slugs from confirmed list`);
+  
+  // If we're hitting rate limits, we should implement more robust retry logic
+  // with exponential backoff and limit our requests
+  const MAX_REQUESTS_PER_RUN = 5;
   
   // If we have very few articles, also try some educated guesses - but only process 5 at a time
   // to avoid rate limits
@@ -520,7 +524,11 @@ export async function fetchMoreArticles(): Promise<{
     }
   }
   
-  for (const slug of slugsToTry) {
+  // Process only a subset of slugs to avoid rate limiting
+  const slugsToProcess = slugsToTry.slice(0, MAX_REQUESTS_PER_RUN);
+  console.log(`Processing ${slugsToProcess.length} URLs this run (out of ${slugsToTry.length} total)`);
+  
+  for (const slug of slugsToProcess) {
     const url = `${baseUrl}${slug}`;
     console.log(`Trying direct URL: ${url}`);
     
@@ -531,17 +539,45 @@ export async function fetchMoreArticles(): Promise<{
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
       
-      const success = await processArticle(url, title, new Date().toISOString(), url);
-      if (success) {
-        totalArticlesAdded++;
-      }
+      // Implement exponential backoff for rate limiting
+      let retryCount = 0;
+      const maxRetries = 3;
+      let success = false;
       
-      // Add a longer delay to avoid rate limiting (Too Many Requests)
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      while (retryCount < maxRetries && !success) {
+        try {
+          // Add a longer delay between requests to avoid rate limiting
+          if (retryCount > 0) {
+            const backoffDelay = Math.pow(2, retryCount) * 2000; // Exponential backoff
+            console.log(`Retry ${retryCount} for ${url}. Waiting ${backoffDelay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, backoffDelay));
+          }
+          
+          success = await processArticle(url, title, new Date().toISOString(), url);
+          if (success) {
+            totalArticlesAdded++;
+            // Wait longer between successful requests
+            await new Promise(resolve => setTimeout(resolve, 5000));
+          }
+        } catch (retryErr) {
+          const errMsg = retryErr instanceof Error ? retryErr.message : 'Unknown error';
+          // Only retry if we hit rate limits
+          if (errMsg.includes('429') || errMsg.includes('Too Many Requests')) {
+            retryCount++;
+            console.log(`Rate limit hit, retry ${retryCount}/${maxRetries}`);
+          } else {
+            // Don't retry other errors
+            throw retryErr;
+          }
+        }
+      }
     } catch (err) {
       // Handle error safely without accessing potentially undefined properties
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       console.log(`Failed to process ${url}: ${errorMessage}`);
+      
+      // Still add a delay after errors to be courteous to the server
+      await new Promise(resolve => setTimeout(resolve, 3000));
     }
   }
   

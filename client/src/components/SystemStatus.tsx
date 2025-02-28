@@ -24,13 +24,16 @@ export default function SystemStatus({ status }: SystemStatusProps) {
   // Define response types
   type RefreshResponse = {
     articlesAdded: number;
+    chunksAdded: number;
     success?: boolean;
   };
   
   type FetchMoreResponse = {
-    articlesAdded: number;
-    totalArticles: number;
     success: boolean;
+    message?: string;
+    inProgress?: boolean;
+    articlesAdded?: number;
+    totalArticles?: number;
   };
   
   // Refresh RSS content mutation
@@ -62,10 +65,17 @@ export default function SystemStatus({ status }: SystemStatusProps) {
       return response;
     },
     onSuccess: (data) => {
-      toast({
-        title: "Articles Fetched",
-        description: `${data.articlesAdded || 0} new articles added from archive.`,
-      });
+      if (data.inProgress) {
+        toast({
+          title: "Article Fetch Started",
+          description: "Articles are being fetched in the background. Check back in a few minutes.",
+        });
+      } else {
+        toast({
+          title: "Articles Fetched",
+          description: `${data.articlesAdded || 0} new articles added from archive.`,
+        });
+      }
       queryClient.invalidateQueries({ queryKey: ["/api/system-status"] });
     },
     onError: () => {
