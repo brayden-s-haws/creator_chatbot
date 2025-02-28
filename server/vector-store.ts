@@ -85,7 +85,7 @@ export async function addDocumentToVectorStore(document: {
 export async function searchSimilarChunks(
   queryEmbedding: number[],
   limit: number = 5,
-  similarityThreshold: number = 0.6 // Lowered threshold to get more results
+  similarityThreshold: number = 0.45 // Lowered threshold significantly to ensure we get results
 ): Promise<VectorDocumentWithScore[]> {
   console.log(`Searching for similar chunks with threshold ${similarityThreshold}`);
   
