@@ -1,6 +1,11 @@
 import fs from "fs/promises";
 import path from "path";
 import { Article, ContentChunk, Query, InsertArticle, InsertContentChunk, InsertQuery, SystemStatusType } from "@shared/schema";
+import { db } from "./db";
+import { eq, sql, desc } from "drizzle-orm";
+import { articles, contentChunks, queries } from "@shared/schema";
+import { testDatabaseConnection } from "./db";
+import { log } from "./vite";
 
 // Interface for storage operations
 export interface IStorage {
@@ -29,110 +34,110 @@ export interface IStorage {
   loadFromFile(): Promise<void>;
 }
 
-export class MemStorage implements IStorage {
-  private articles: Map<number, Article>;
-  private contentChunks: Map<number, ContentChunk>;
-  private queries: Map<number, Query>;
+// Implement storage with PostgreSQL database
+export class DatabaseStorage implements IStorage {
   private systemStatus: SystemStatusType;
-  
-  private articlesIdCounter: number;
-  private contentChunksIdCounter: number;
-  private queriesIdCounter: number;
-  
   private dataDir: string;
   
   constructor() {
-    this.articles = new Map();
-    this.contentChunks = new Map();
-    this.queries = new Map();
-    this.articlesIdCounter = 1;
-    this.contentChunksIdCounter = 1;
-    this.queriesIdCounter = 1;
-    
     this.systemStatus = {
-      dbConnected: true,
+      dbConnected: false,
       lastUpdated: null,
       nextUpdate: null,
       articlesIndexed: 0,
     };
     
     this.dataDir = path.join(process.cwd(), "data");
+    
+    // Initialize the database connection
+    this.initializeDatabase();
+  }
+  
+  private async initializeDatabase(): Promise<void> {
+    try {
+      // Test database connection
+      const connected = await testDatabaseConnection();
+      this.systemStatus.dbConnected = connected;
+      
+      if (connected) {
+        // Get article count
+        const result = await db.select({ count: sql<number>`count(*)` }).from(articles);
+        this.systemStatus.articlesIndexed = result[0].count;
+        
+        log("Database initialized successfully", "storage");
+      }
+    } catch (error: any) {
+      log(`Database initialization failed: ${error.message}`, "storage");
+      this.systemStatus.dbConnected = false;
+    }
   }
   
   // Article operations
   async getArticles(): Promise<Article[]> {
-    return Array.from(this.articles.values());
+    return await db.select().from(articles).orderBy(desc(articles.publishedAt));
   }
   
   async getArticleById(id: number): Promise<Article | undefined> {
-    return this.articles.get(id);
+    const result = await db.select().from(articles).where(eq(articles.id, id));
+    return result.length > 0 ? result[0] : undefined;
   }
   
   async getArticleByUrl(url: string): Promise<Article | undefined> {
-    return Array.from(this.articles.values()).find(article => article.url === url);
+    const result = await db.select().from(articles).where(eq(articles.url, url));
+    return result.length > 0 ? result[0] : undefined;
   }
   
   async getArticleByGuid(guid: string): Promise<Article | undefined> {
-    return Array.from(this.articles.values()).find(article => article.guid === guid);
+    const result = await db.select().from(articles).where(eq(articles.guid, guid));
+    return result.length > 0 ? result[0] : undefined;
   }
   
   async createArticle(insertArticle: InsertArticle): Promise<Article> {
-    const id = this.articlesIdCounter++;
-    const article: Article = { ...insertArticle, id, fetchedAt: new Date() };
-    this.articles.set(id, article);
-    this.systemStatus.articlesIndexed = this.articles.size;
+    const [article] = await db.insert(articles)
+      .values({ ...insertArticle, fetchedAt: new Date() })
+      .returning();
+    
+    // Update system status
     this.systemStatus.lastUpdated = new Date().toISOString();
-    await this.saveToFile();
+    this.systemStatus.articlesIndexed += 1;
+    
     return article;
   }
   
   // Content chunk operations
   async getContentChunks(): Promise<ContentChunk[]> {
-    return Array.from(this.contentChunks.values());
+    return await db.select().from(contentChunks);
   }
   
   async getContentChunksByArticleId(articleId: number): Promise<ContentChunk[]> {
-    return Array.from(this.contentChunks.values()).filter(chunk => chunk.articleId === articleId);
+    return await db.select().from(contentChunks).where(eq(contentChunks.articleId, articleId));
   }
   
   async createContentChunk(insertChunk: InsertContentChunk): Promise<ContentChunk> {
-    const id = this.contentChunksIdCounter++;
-    // Ensure embedding is provided (as required by ContentChunk type)
-    const chunk: ContentChunk = { 
-      ...insertChunk, 
-      id, 
-      embedding: insertChunk.embedding || [] 
-    };
-    this.contentChunks.set(id, chunk);
-    await this.saveToFile();
+    const [chunk] = await db.insert(contentChunks).values(insertChunk).returning();
     return chunk;
   }
   
   // Query operations
   async getQueries(): Promise<Query[]> {
-    return Array.from(this.queries.values());
+    return await db.select().from(queries).orderBy(desc(queries.createdAt));
   }
   
   async createQuery(insertQuery: InsertQuery): Promise<Query> {
-    const id = this.queriesIdCounter++;
-    // Ensure embedding is provided (as required by Query type)
-    const query: Query = { 
-      ...insertQuery, 
-      id, 
-      createdAt: new Date(),
-      embedding: insertQuery.embedding || []
-    };
-    this.queries.set(id, query);
-    await this.saveToFile();
+    const [query] = await db.insert(queries)
+      .values({ ...insertQuery, createdAt: new Date() })
+      .returning();
+    
     return query;
   }
   
   // System status operations
   async getSystemStatus(): Promise<SystemStatusType> {
-    return {
-      ...this.systemStatus,
-      articlesIndexed: this.articles.size,
-    };
+    // Refresh article count
+    const result = await db.select({ count: sql<number>`count(*)` }).from(articles);
+    this.systemStatus.articlesIndexed = result[0].count;
+    
+    return this.systemStatus;
   }
   
   async updateSystemStatus(status: Partial<SystemStatusType>): Promise<SystemStatusType> {
@@ -141,38 +146,26 @@ export class MemStorage implements IStorage {
     return this.systemStatus;
   }
   
-  // Persistence operations
+  // Persistence operations - still keeping file backups for system status
   async saveToFile(): Promise<void> {
     try {
       // Ensure data directory exists
       await fs.mkdir(this.dataDir, { recursive: true });
       
-      // Serialize data
-      const data = {
-        articles: Array.from(this.articles.values()),
-        contentChunks: Array.from(this.contentChunks.values()),
-        queries: Array.from(this.queries.values()),
-        systemStatus: this.systemStatus,
-        counters: {
-          articlesIdCounter: this.articlesIdCounter,
-          contentChunksIdCounter: this.contentChunksIdCounter,
-          queriesIdCounter: this.queriesIdCounter,
-        },
-      };
-      
-      // Write to file
+      // Serialize system status
       await fs.writeFile(
-        path.join(this.dataDir, "data.json"),
-        JSON.stringify(data, null, 2)
+        path.join(this.dataDir, "system-status.json"),
+        JSON.stringify(this.systemStatus, null, 2)
       );
-    } catch (error) {
-      console.error("Failed to save data to file:", error);
+      
+    } catch (error: any) {
+      console.error("Failed to save system status to file:", error);
     }
   }
   
   async loadFromFile(): Promise<void> {
     try {
-      const filePath = path.join(this.dataDir, "data.json");
+      const filePath = path.join(this.dataDir, "system-status.json");
       
       // Check if file exists
       try {
@@ -182,30 +175,19 @@ export class MemStorage implements IStorage {
         return;
       }
       
-      // Read and parse data
+      // Read and parse system status
       const content = await fs.readFile(filePath, "utf-8");
-      const data = JSON.parse(content);
+      this.systemStatus = JSON.parse(content);
       
-      // Restore data
-      this.articles = new Map(data.articles.map((article: Article) => [article.id, article]));
-      this.contentChunks = new Map(data.contentChunks.map((chunk: ContentChunk) => [chunk.id, chunk]));
-      this.queries = new Map(data.queries.map((query: Query) => [query.id, query]));
-      this.systemStatus = data.systemStatus;
-      
-      // Restore counters
-      this.articlesIdCounter = data.counters.articlesIdCounter;
-      this.contentChunksIdCounter = data.counters.contentChunksIdCounter;
-      this.queriesIdCounter = data.counters.queriesIdCounter;
-      
-      console.log(`Loaded ${this.articles.size} articles, ${this.contentChunks.size} chunks, and ${this.queries.size} queries from file.`);
-    } catch (error) {
-      console.error("Failed to load data from file:", error);
+      log("Loaded system status from file", "storage");
+    } catch (error: any) {
+      log(`Failed to load system status from file: ${error.message}`, "storage");
     }
   }
 }
 
 // Create and initialize storage
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
 
 // Load data from file on startup
 (async () => {

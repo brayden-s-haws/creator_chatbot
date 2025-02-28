@@ -12,12 +12,24 @@ const CHAT_MODEL = "gpt-4o";
 
 // This function has been moved to embeddings.ts
 
+interface VectorDocumentWithScore {
+  id: number;
+  documentId: string;
+  content: string;
+  embedding: number[] | any; // Need to handle unknown type from database
+  articleId: number;
+  title: string;
+  url: string;
+  createdAt: Date;
+  score?: number;
+}
+
 /**
  * Generate an answer based on the user's question and retrieved content
  */
 export async function generateAnswer(
   question: string,
-  relevantChunks: any[]
+  relevantChunks: VectorDocumentWithScore[]
 ): Promise<MessageType> {
   // If no relevant chunks, use general knowledge
   const usingGeneralKnowledge = relevantChunks.length === 0;
@@ -34,11 +46,11 @@ export async function generateAnswer(
       contextText += `[Content ${index + 1}] ${chunk.content}\n\n`;
       
       // Add source if not already included
-      const sourceExists = sources.some(source => source.url === chunk.metadata.url);
+      const sourceExists = sources.some(source => source.url === chunk.url);
       if (!sourceExists) {
         sources.push({
-          title: chunk.metadata.title,
-          url: chunk.metadata.url,
+          title: chunk.title,
+          url: chunk.url,
         });
       }
     });
