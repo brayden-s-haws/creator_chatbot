@@ -1,5 +1,7 @@
 import { MessageType } from "@shared/schema";
 import { ExternalLink } from "lucide-react";
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 
 type ChatMessageProps = {
   message: MessageType;
@@ -40,9 +42,34 @@ export default function ChatMessage({ message }: ChatMessageProps) {
       </div>
       <div className="flex-grow">
         <div className="prose prose-sm max-w-none">
-          {message.content.split('\n').map((paragraph, idx) => (
-            <p key={idx}>{paragraph}</p>
-          ))}
+          <ReactMarkdown 
+            rehypePlugins={[rehypeRaw]}
+            components={{
+              a: ({ node, ...props }) => (
+                <a 
+                  {...props} 
+                  className="text-primary hover:underline" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                />
+              ),
+              h1: ({ node, ...props }) => <h1 {...props} className="text-xl font-bold mt-4 mb-2" />,
+              h2: ({ node, ...props }) => <h2 {...props} className="text-lg font-bold mt-3 mb-2" />,
+              h3: ({ node, ...props }) => <h3 {...props} className="text-md font-bold mt-3 mb-1" />,
+              ul: ({ node, ...props }) => <ul {...props} className="list-disc pl-5 my-2" />,
+              ol: ({ node, ...props }) => <ol {...props} className="list-decimal pl-5 my-2" />,
+              blockquote: ({ node, ...props }) => (
+                <blockquote {...props} className="border-l-4 border-slate-300 pl-4 italic my-2" />
+              ),
+              code: ({ node, inline, ...props }) => (
+                inline 
+                  ? <code {...props} className="bg-slate-100 px-1 py-0.5 rounded text-sm font-mono" />
+                  : <pre className="bg-slate-100 p-3 rounded my-2 text-sm font-mono overflow-x-auto"><code {...props} /></pre>
+              ),
+            }}
+          >
+            {message.content}
+          </ReactMarkdown>
 
           {message.sources && message.sources.length > 0 && (
             <div className="bg-slate-50 p-3 rounded-md mt-3 text-sm border border-slate-200">

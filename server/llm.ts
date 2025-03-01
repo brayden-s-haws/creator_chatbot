@@ -65,8 +65,13 @@ ${usingGeneralKnowledge ?
   "You don't have specific content from 'Run the Business' to answer this question, so please use your general knowledge about product management. Make it clear in your response that you're using general knowledge rather than specific content from Ibrahim Bashir." : 
   "Use ONLY the provided content to answer the question. If the provided content doesn't contain enough information to answer the question completely, acknowledge the limitations and provide the best answer based on what's available."}
 
-Respond in a clear, conversational tone. Use markdown formatting for better readability.
-Format lists, headings, and important points appropriately.
+Respond in a clear, conversational tone. Use markdown formatting for rich text display:
+- Use **bold** for emphasis
+- Use headings (##, ###) for section titles
+- Use bullet lists and numbered lists where appropriate
+- Use `code` formatting for technical terms or snippets
+- Use > for blockquotes when referencing direct quotes
+Format these elements appropriately to improve readability.
 
 ${usingGeneralKnowledge ? "" : "Always cite your sources by referring to the relevant 'Run the Business' articles in your answer."}`,
   };
