@@ -21,17 +21,7 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="flex-grow flex flex-col md:flex-row container mx-auto px-4 py-6 gap-8 max-w-screen-xl">
-        {/* Left Column (Chat) - Mobile: Full Width, Desktop: 3/4 Width */}
-        <div className="w-full md:w-3/4 flex flex-col">
-          <ChatInterface />
-          
-          {/* Powered By Section */}
-          <div className="mt-3 flex justify-center">
-            <p className="text-sm text-slate-500">Powered by <a href="https://runthebusiness.substack.com" target="_blank" rel="noopener noreferrer" className="text-blue-600">Run the Business</a></p>
-          </div>
-        </div>
-        
-        {/* Right Column (Sidebar) - Mobile: Full Width, Desktop: 1/4 Width */}
+        {/* Left Column (Sidebar) - Mobile: Full Width, Desktop: 1/4 Width */}
         <div className="w-full md:w-1/4 space-y-6">
           <ProfileCard />
           <SuggestedQuestions />
@@ -39,6 +29,16 @@ export default function Home() {
           {/* CSV Uploader Component */}
           <div className="bg-white rounded-lg shadow">
             <CsvUploader />
+          </div>
+        </div>
+        
+        {/* Right Column (Chat) - Mobile: Full Width, Desktop: 3/4 Width */}
+        <div className="w-full md:w-3/4 flex flex-col">
+          <ChatInterface />
+          
+          {/* Powered By Section */}
+          <div className="mt-3 flex justify-center">
+            <p className="text-sm text-slate-500">Powered by <a href="https://runthebusiness.substack.com" target="_blank" rel="noopener noreferrer" className="text-blue-600">Run the Business</a></p>
           </div>
         </div>
       </main>
