@@ -14,7 +14,7 @@ export default function ChatInterface() {
     {
       id: "welcome-message",
       role: "assistant",
-      content: "Hi there! I'm the Run the Business chatbot. I can answer questions about product management, business strategy, and more based on Ibrahim Bashir's Substack content.\n\nAsk me anything about product management, or try one of the suggested questions on the right.",
+      content: "Hi there! I'm Ibrahim, how can I help?",
       createdAt: new Date().toISOString(),
       sources: [],
     },
@@ -104,7 +104,7 @@ export default function ChatInterface() {
       {
         id: "welcome-message",
         role: "assistant",
-        content: "Hi there! I'm the Run the Business chatbot. I can answer questions about product management, business strategy, and more based on Ibrahim Bashir's Substack content.\n\nAsk me anything about product management, or try one of the suggested questions on the right.",
+        content: "What else can I teach you about?",
         createdAt: new Date().toISOString(),
         sources: [],
       },
