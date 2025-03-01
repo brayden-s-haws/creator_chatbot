@@ -121,7 +121,9 @@ export default function ChatMessage({ message }: ChatMessageProps) {
                     <button 
                       onClick={(e) => {
                         e.preventDefault();
-                        handleCitationClick(citationIndex);
+                        if (sourceExists) {
+                          handleCitationClick(citationIndex);
+                        }
                       }}
                       className={`inline-flex items-center justify-center text-xs rounded-full w-5 h-5 align-text-top font-medium transition-colors ${
                         sourceExists 
