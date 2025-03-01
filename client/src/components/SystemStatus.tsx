@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, RefreshCw, BookOpen, Loader2 } from "lucide-react";
 import { SystemStatusType } from "@shared/schema";
-import { formatDate } from "@/lib/utils";
+import { format } from 'date-fns'
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -14,20 +14,20 @@ type SystemStatusProps = {
 
 export default function SystemStatus({ status }: SystemStatusProps) {
   const dbConnected = status?.dbConnected ?? false;
-  const lastUpdated = status?.lastUpdated ? new Date(status.lastUpdated) : null;
-  const nextUpdate = status?.nextUpdate ? new Date(status.nextUpdate) : null;
+  const lastUpdated = status?.lastUpdated;
+  const nextUpdate = status?.nextUpdate;
   const articlesIndexed = status?.articlesIndexed ?? 0;
-  
+
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  
+
   // Define response types
   type RefreshResponse = {
     articlesAdded: number;
     chunksAdded: number;
     success?: boolean;
   };
-  
+
   type FetchMoreResponse = {
     success: boolean;
     message?: string;
@@ -35,7 +35,7 @@ export default function SystemStatus({ status }: SystemStatusProps) {
     articlesAdded?: number;
     totalArticles?: number;
   };
-  
+
   // Refresh RSS content mutation
   const refreshMutation = useMutation({
     mutationFn: async () => {
@@ -57,7 +57,7 @@ export default function SystemStatus({ status }: SystemStatusProps) {
       });
     }
   });
-  
+
   // Fetch more articles mutation
   const fetchMoreMutation = useMutation({
     mutationFn: async () => {
@@ -86,13 +86,24 @@ export default function SystemStatus({ status }: SystemStatusProps) {
       });
     }
   });
-  
+
   const isLoading = refreshMutation.isPending || fetchMoreMutation.isPending;
-  
+
+  // Format date with error handling
+  const formatDate = (dateString: string | undefined): string => {
+    if (!dateString) return 'Never';
+    try {
+      return format(new Date(dateString), 'MMM d, yyyy h:mm a');
+    } catch (error) {
+      console.error("Invalid date format:", dateString, error);
+      return 'Invalid date';
+    }
+  };
+
   return (
     <Card className="p-6">
       <h3 className="font-semibold text-base mb-4">System Status</h3>
-      
+
       <div className="space-y-3 text-sm">
         <div className="flex justify-between items-center">
           <span className="text-slate-600">Content Database</span>
@@ -110,19 +121,19 @@ export default function SystemStatus({ status }: SystemStatusProps) {
             )}
           </span>
         </div>
-        
+
         <div className="flex justify-between items-center">
           <span className="text-slate-600">Last Updated</span>
           <span className="text-slate-700">
-            {lastUpdated ? formatDate(lastUpdated) : "Never"}
+            {formatDate(lastUpdated)}
           </span>
         </div>
-        
+
         <div className="flex justify-between items-center">
           <span className="text-slate-600">Articles Indexed</span>
           <span className="text-slate-700">{articlesIndexed}</span>
         </div>
-        
+
         <div className="border-t border-slate-100 pt-3 mt-3">
           <div className="flex items-center justify-between">
             <span className="text-slate-600">Next Update</span>
@@ -131,7 +142,7 @@ export default function SystemStatus({ status }: SystemStatusProps) {
             </span>
           </div>
         </div>
-        
+
         <div className="border-t border-slate-100 pt-3 mt-3 space-y-2">
           <Button 
             variant="outline" 
@@ -147,7 +158,7 @@ export default function SystemStatus({ status }: SystemStatusProps) {
             )}
             Refresh RSS Content
           </Button>
-          
+
           <Button 
             variant="outline" 
             size="sm" 
