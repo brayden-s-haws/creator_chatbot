@@ -45,13 +45,14 @@ export default function ChatMessage({ message }: ChatMessageProps) {
     }
   }, [activeCitation, message.sources]);
 
-  // Process content to add interactive citation buttons
+  // Process content to add interactive citation buttons and filter invalid citations
   const processContent = (content: string) => {
     if (!message.sources) {
       return content;
     }
 
     // Replace citation markers like [1], [2], etc. with interactive citation buttons
+    // or remove invalid citations entirely
     return content.replace(/\[(\d+)\]/g, (match, citationNumber) => {
       const num = parseInt(citationNumber, 10) - 1; // Convert to 0-based index
       const sourceExists = message.sources && num >= 0 && num < message.sources.length;
@@ -59,8 +60,8 @@ export default function ChatMessage({ message }: ChatMessageProps) {
       // If the citation is invalid (references a non-existent source)
       if (!sourceExists) {
         console.warn(`Invalid citation found: [${citationNumber}] - only ${message.sources?.length || 0} sources available`);
-        // For invalid citations, create a visually distinct element to indicate the problem
-        return `<span class="inline-citation invalid-citation" data-citation-index="${num}" data-citation-number="${citationNumber}" title="Invalid citation: source does not exist">${citationNumber}</span>`;
+        // Instead of showing invalid citations, we'll remove them completely
+        return '';
       }
       
       // For valid citations, create the normal interactive button
