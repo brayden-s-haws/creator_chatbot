@@ -1,19 +1,11 @@
 import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
 import ChatInterface from "@/components/ChatInterface";
 import ProfileCard from "@/components/ProfileCard";
 import SuggestedQuestions from "@/components/SuggestedQuestions";
-import SystemStatus from "@/components/SystemStatus";
 import CsvUploader from "@/components/CsvUploader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SystemStatusType } from "@shared/schema";
 
 export default function Home() {
-  // Fetch system status when the component mounts
-  const { data: systemStatus } = useQuery<SystemStatusType>({
-    queryKey: ["/api/system-status"],
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
@@ -41,7 +33,6 @@ export default function Home() {
         <div className="w-full md:w-1/4 space-y-6">
           <ProfileCard />
           <SuggestedQuestions />
-          <SystemStatus status={systemStatus} />
           
           {/* CSV Uploader Component */}
           <div className="bg-white rounded-lg shadow">
