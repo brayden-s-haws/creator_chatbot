@@ -120,6 +120,11 @@ export default function ChatMessage({ message }: ChatMessageProps) {
                   // If this is a citation number that exceeds our sources, display it differently
                   const isInvalidCitation = parseInt(citationNumber, 10) > (message.sources?.length || 0);
                   
+                  // Log issue with invalid citations for debugging
+                  if (isInvalidCitation) {
+                    console.log(`Invalid citation: [${citationNumber}] - only ${message.sources?.length || 0} sources available`);
+                  }
+                  
                   return (
                     <button 
                       onClick={(e) => {

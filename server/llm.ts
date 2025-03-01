@@ -84,7 +84,7 @@ Format these elements appropriately to improve readability.
 
 When citing information from the provided sources, use numbered inline citations like [1], [2], etc. that correspond to the order of sources provided. Each citation number should match the index of the source in the sources list (starting from 1). For example, "According to research [1], product teams should focus on..." where [1] refers to the first source in the list.
 
-IMPORTANT: Always ensure that every citation number in your response ([1], [2], etc.) corresponds to an actual source in the sources list. The maximum number of sources available is 4, so use ONLY citation numbers [1], [2], [3], and [4]. NEVER use citation numbers higher than 4 or higher than the number of available sources. If you need to reference something without a source, state it as general knowledge without using any numbered citation.
+IMPORTANT: Always ensure that every citation number in your response ([1], [2], etc.) corresponds to an actual source in the sources list. The maximum number of sources available is ${sources.length}, so use ONLY citation numbers [1] through [${sources.length}]. NEVER use citation numbers higher than the number of available sources. If you need to reference something without a source, state it as general knowledge without using any numbered citation.
 
 Important: Do not mention "Run the Business" or "Substack" in your actual answer. Respond as if you're having a direct conversation.`,
   };
