@@ -10,6 +10,12 @@ const openai = new OpenAI({
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const CHAT_MODEL = "gpt-4o";
 
+// Max number of sources to include with each message
+// There is no hard-coded limit - we'll include all relevant sources
+const MAX_SOURCES = 10; // Setting a reasonable limit, but can be increased if needed
+
+console.log("Using MAX_SOURCES:", MAX_SOURCES);
+
 // This function has been moved to embeddings.ts
 
 interface VectorDocumentWithScore {

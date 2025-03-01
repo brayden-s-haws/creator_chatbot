@@ -52,9 +52,16 @@ export default function ChatMessage({ message }: ChatMessageProps) {
     // Replace citation markers like [1], [2], etc. with interactive citation spans
     return content.replace(/\[(\d+)\]/g, (match, citationNumber) => {
       const num = parseInt(citationNumber, 10);
+      
+      // Check if the citation number exists in the sources array
+      // Note: We're using '>' instead of '>=' because array indices are 0-based
+      // but citation numbers are 1-based
       if (num > 0 && num <= message.sources.length) {
         return `<span class="inline-citation">[${citationNumber}]</span>`;
       }
+      
+      // If the citation number is out of range, log this for debugging
+      console.warn(`Citation [${citationNumber}] referenced but not found in sources array of length ${message.sources.length}`);
       return match;
     });
   };
@@ -139,7 +146,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
                       className="text-primary hover:underline flex items-center gap-1"
                     >
                       <span className="inline-flex items-center justify-center bg-blue-100 text-primary text-xs rounded-full w-5 h-5 mr-1 font-medium">{idx + 1}</span>
-                      <span>{source.title}</span>
+                      <span>{source.title || `Source ${idx + 1}`}</span>
                       <ExternalLink className="w-3 h-3" />
                     </a>
                   </li>
