@@ -36,7 +36,12 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   // Handle citation click
   const handleCitationClick = useCallback((index: number) => {
     setActiveCitation(activeCitation === index ? null : index);
-  }, [activeCitation]);
+    
+    // Open the URL in a new tab if sources exist
+    if (message.sources && message.sources[index]?.url) {
+      window.open(message.sources[index].url, '_blank', 'noopener,noreferrer');
+    }
+  }, [activeCitation, message.sources]);
 
   // Process content to add inline citation links
   const processContent = (content: string) => {
