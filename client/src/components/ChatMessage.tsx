@@ -38,8 +38,10 @@ export default function ChatMessage({ message }: ChatMessageProps) {
     setActiveCitation(activeCitation === index ? null : index);
     
     // Open the URL in a new tab if sources exist
-    if (message.sources && message.sources[index]?.url) {
+    if (message.sources && index < message.sources.length && message.sources[index]?.url) {
       window.open(message.sources[index].url, '_blank', 'noopener,noreferrer');
+    } else {
+      console.log(`Citation source [${index + 1}] not found or has no URL`);
     }
   }, [activeCitation, message.sources]);
 
@@ -53,16 +55,9 @@ export default function ChatMessage({ message }: ChatMessageProps) {
     return content.replace(/\[(\d+)\]/g, (match, citationNumber) => {
       const num = parseInt(citationNumber, 10);
       
-      // Check if the citation number exists in the sources array
-      // Note: We're using '>' instead of '>=' because array indices are 0-based
-      // but citation numbers are 1-based
-      if (num > 0 && num <= message.sources.length) {
-        return `<span class="inline-citation">[${citationNumber}]</span>`;
-      }
-      
-      // If the citation number is out of range, log this for debugging
-      console.warn(`Citation [${citationNumber}] referenced but not found in sources array of length ${message.sources.length}`);
-      return match;
+      // Always return a citation span, even if the source doesn't exist yet
+      // This ensures all citation numbers are clickable
+      return `<span class="inline-citation">[${citationNumber}]</span>`;
     });
   };
 

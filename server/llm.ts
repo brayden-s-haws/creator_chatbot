@@ -11,8 +11,8 @@ const openai = new OpenAI({
 const CHAT_MODEL = "gpt-4o";
 
 // Max number of sources to include with each message
-// There is no hard-coded limit - we'll include all relevant sources
-const MAX_SOURCES = 10; // Setting a reasonable limit, but can be increased if needed
+// Setting a higher limit to accommodate all citations in the text
+const MAX_SOURCES = 20; // Increased from 10 to handle more sources
 
 console.log("Using MAX_SOURCES:", MAX_SOURCES);
 
