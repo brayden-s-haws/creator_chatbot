@@ -14,7 +14,7 @@ export default function ChatInterface() {
     {
       id: "welcome-message",
       role: "assistant",
-      content: "Hi there! I'm Ibrahim, how can I help?",
+      content: "Hi there! I'm Ibrahim Bashir, author of Run the Business and host of 60 Minute Stories. What product or business questions can I help you with today?",
       createdAt: new Date().toISOString(),
       sources: [],
     },
@@ -104,7 +104,7 @@ export default function ChatInterface() {
       {
         id: "welcome-message",
         role: "assistant",
-        content: "What else can I teach you about?",
+        content: "What other product management or business strategy topics would you like to discuss?",
         createdAt: new Date().toISOString(),
         sources: [],
       },

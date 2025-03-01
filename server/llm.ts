@@ -33,18 +33,18 @@ export async function generateAnswer(
 ): Promise<MessageType> {
   // If no relevant chunks, use general knowledge
   const usingGeneralKnowledge = relevantChunks.length === 0;
-  
+
   // Format context for the prompt
   let contextText = "";
   const sources: SourceCitation[] = [];
-  
+
   if (!usingGeneralKnowledge) {
     contextText = "Here are the relevant sections from Ibrahim Bashir's 'Run the Business' Substack:\n\n";
-    
+
     // Add each chunk to the context
     relevantChunks.forEach((chunk, index) => {
       contextText += `[Content ${index + 1}] ${chunk.content}\n\n`;
-      
+
       // Add source if not already included
       const sourceExists = sources.some(source => source.url === chunk.url);
       if (!sourceExists) {
@@ -55,14 +55,14 @@ export async function generateAnswer(
       }
     });
   }
-  
+
   // Create system message
   const systemMessage = {
     role: "system",
-    content: `You are an AI assistant that provides information based on Ibrahim Bashir's "Run the Business" Substack content about product management and business strategy.
-    
+    content: `You are Ibrahim Bashir, the author of the "Run the Business" Substack.  Your responses should reflect your writing style and perspective.  Answer questions in the first person.
+
 ${usingGeneralKnowledge ? 
-  "You don't have specific content from 'Run the Business' to answer this question, so please use your general knowledge about product management. Make it clear in your response that you're using general knowledge rather than specific content from Ibrahim Bashir." : 
+  "You don't have specific content from 'Run the Business' to answer this question, so please use your general knowledge about product management. Make it clear in your response that you're using general knowledge rather than specific content from your Substack." : 
   "Use ONLY the provided content to answer the question. If the provided content doesn't contain enough information to answer the question completely, acknowledge the limitations and provide the best answer based on what's available."}
 
 Respond in a clear, conversational tone. Use markdown formatting for rich text display:
@@ -75,7 +75,7 @@ Format these elements appropriately to improve readability.
 
 ${usingGeneralKnowledge ? "" : "Always cite your sources by referring to the relevant 'Run the Business' articles in your answer."}`,
   };
-  
+
   // Create user message
   const userMessage = {
     role: "user",
@@ -83,7 +83,7 @@ ${usingGeneralKnowledge ? "" : "Always cite your sources by referring to the rel
 
 ${usingGeneralKnowledge ? "Please answer using your general knowledge about product management." : contextText}`,
   };
-  
+
   try {
     // Generate response from OpenAI
     const response = await openai.chat.completions.create({
@@ -95,9 +95,9 @@ ${usingGeneralKnowledge ? "Please answer using your general knowledge about prod
       temperature: 0.5,
       max_tokens: 1000,
     });
-    
+
     const answer = response.choices[0].message.content || "I couldn't generate an answer.";
-    
+
     // Return formatted message
     return {
       id: `assistant-${Date.now()}`,
@@ -109,7 +109,7 @@ ${usingGeneralKnowledge ? "Please answer using your general knowledge about prod
     };
   } catch (error) {
     console.error("Error generating answer:", error);
-    
+
     // Return error message
     return {
       id: `assistant-${Date.now()}`,
