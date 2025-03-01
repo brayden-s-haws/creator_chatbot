@@ -55,15 +55,8 @@ export default function ChatMessage({ message }: ChatMessageProps) {
     return content.replace(/\[(\d+)\]/g, (match, citationNumber) => {
       const num = parseInt(citationNumber, 10) - 1; // Convert to 0-based index
       
-      // Check if this citation number exists in our sources
-      const sourceExists = message.sources && num < message.sources.length;
-      
-      if (!sourceExists) {
-        // If citation doesn't exist, just return the original text
-        return match;
-      }
-      
-      // Return a button that will be processed by the span renderer in ReactMarkdown
+      // Always create a span for the citation, even if it doesn't exist in sources
+      // This ensures consistent UI for all citation numbers
       return `<span class="inline-citation" data-citation-index="${num}" data-citation-number="${citationNumber}">${citationNumber}</span>`;
     });
   };
@@ -119,8 +112,13 @@ export default function ChatMessage({ message }: ChatMessageProps) {
                     ? citationNumberAttr
                     : props.children?.toString() || '1';
                   
-                  // Determine if the source exists
-                  const sourceExists = message.sources && citationIndex >= 0 && citationIndex < message.sources.length;
+                  // Determine if the source exists - ensure it's within the available sources
+                  const sourceExists = message.sources && 
+                                      citationIndex >= 0 && 
+                                      citationIndex < message.sources.length;
+                  
+                  // If this is a citation number that exceeds our sources, display it differently
+                  const isInvalidCitation = parseInt(citationNumber, 10) > (message.sources?.length || 0);
                   
                   return (
                     <button 
@@ -136,7 +134,11 @@ export default function ChatMessage({ message }: ChatMessageProps) {
                           : "bg-gray-100 text-gray-500 cursor-not-allowed"
                       }`}
                       style={{ border: 'none', padding: 0, margin: '0 2px' }}
-                      title={sourceExists ? "Click to view source" : "Source not available"}
+                      title={sourceExists 
+                              ? "Click to view source" 
+                              : isInvalidCitation 
+                                ? "Citation number exceeds available sources" 
+                                : "Source not available"}
                       disabled={!sourceExists}
                     >
                       {citationNumber}
