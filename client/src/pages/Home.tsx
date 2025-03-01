@@ -25,17 +25,17 @@ export default function Home() {
         <div className="w-full md:w-1/4 space-y-6">
           <ProfileCard />
           <SuggestedQuestions />
-          
-          {/* CSV Uploader Component */}
-          <div className="bg-white rounded-lg shadow">
+
+          {/* CSV Uploader Component - Hidden */}
+          {/* <div className="bg-white rounded-lg shadow">
             <CsvUploader />
-          </div>
+          </div> */}
         </div>
-        
+
         {/* Right Column (Chat) - Mobile: Full Width, Desktop: 3/4 Width */}
         <div className="w-full md:w-3/4 flex flex-col">
           <ChatInterface />
-          
+
           {/* Powered By Section */}
           <div className="mt-3 flex justify-center">
             <p className="text-sm text-slate-500">Powered by <a href="https://runthebusiness.substack.com" target="_blank" rel="noopener noreferrer" className="text-blue-600">Run the Business</a></p>
