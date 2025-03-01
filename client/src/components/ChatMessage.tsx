@@ -54,9 +54,16 @@ export default function ChatMessage({ message }: ChatMessageProps) {
     // Replace citation markers like [1], [2], etc. with interactive citation buttons
     return content.replace(/\[(\d+)\]/g, (match, citationNumber) => {
       const num = parseInt(citationNumber, 10) - 1; // Convert to 0-based index
+      const sourceExists = message.sources && num >= 0 && num < message.sources.length;
       
-      // Always create a span for the citation, even if it doesn't exist in sources
-      // This ensures consistent UI for all citation numbers
+      // If the citation is invalid (references a non-existent source)
+      if (!sourceExists) {
+        console.warn(`Invalid citation found: [${citationNumber}] - only ${message.sources?.length || 0} sources available`);
+        // For invalid citations, create a visually distinct element to indicate the problem
+        return `<span class="inline-citation invalid-citation" data-citation-index="${num}" data-citation-number="${citationNumber}" title="Invalid citation: source does not exist">${citationNumber}</span>`;
+      }
+      
+      // For valid citations, create the normal interactive button
       return `<span class="inline-citation" data-citation-index="${num}" data-citation-number="${citationNumber}">${citationNumber}</span>`;
     });
   };
@@ -122,7 +129,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
                   
                   // Log issue with invalid citations for debugging
                   if (isInvalidCitation) {
-                    console.error(`Invalid citation: [${citationNumber}] - only ${message.sources?.length || 0} sources available`);
+                    console.warn(`Invalid citation: [${citationNumber}] - only ${message.sources?.length || 0} sources available`);
                   }
                   
                   return (
@@ -136,13 +143,15 @@ export default function ChatMessage({ message }: ChatMessageProps) {
                       className={`inline-flex items-center justify-center text-xs rounded-full w-5 h-5 align-text-top font-medium transition-colors ${
                         sourceExists 
                           ? "bg-blue-100 text-primary hover:bg-blue-200 cursor-pointer" 
-                          : "bg-gray-100 text-gray-500 cursor-not-allowed"
+                          : isInvalidCitation
+                            ? "bg-red-100 text-red-500 cursor-not-allowed" 
+                            : "bg-gray-100 text-gray-500 cursor-not-allowed"
                       }`}
                       style={{ border: 'none', padding: 0, margin: '0 2px' }}
                       title={sourceExists 
                               ? "Click to view source" 
                               : isInvalidCitation 
-                                ? "Citation number exceeds available sources" 
+                                ? "Invalid citation: source does not exist" 
                                 : "Source not available"}
                       disabled={!sourceExists}
                     >

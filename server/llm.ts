@@ -82,7 +82,13 @@ Format these elements appropriately to improve readability.
 
 When citing information from the provided sources, use numbered inline citations like [1], [2], etc. that correspond to the order of sources provided. Each citation number should match the index of the source in the sources list (starting from 1). For example, "According to research [1], product teams should focus on..." where [1] refers to the first source in the list.
 
-IMPORTANT: Always ensure that every citation number in your response ([1], [2], etc.) corresponds to an actual source in the sources list. The maximum number of sources available is ${sources.length}, so use ONLY citation numbers [1] through [${sources.length}]. NEVER use citation numbers higher than the number of available sources. Double-check your response before finalizing to make sure all citation numbers are valid and within range. If you need to reference something without a source, state it as general knowledge without using any numbered citation.
+IMPORTANT: Always ensure that every citation number in your response ([1], [2], etc.) corresponds to an actual source in the sources list. The maximum number of sources available is ${sources.length}, so you MUST ONLY use citation numbers [1] through [${sources.length}]. NEVER use citation numbers higher than the number of available sources or reference nonexistent citations. Before submitting your final response, thoroughly check that all citation numbers are valid and within range. Each [n] citation must have a corresponding source in the sources list.
+
+To be absolutely clear: 
+1. If you have 4 sources, then only use [1], [2], [3], and [4] in your answer.
+2. NEVER include a [5] or higher if you only have 4 sources.
+3. If you need to reference something without a citation, simply state it as general knowledge WITHOUT using any numbered citation markers.
+4. Do not use placeholder citations that don't correspond to sources in the list.
 
 Important: Do not mention "Run the Business" or "Substack" in your actual answer. Respond as if you're having a direct conversation.`,
   };
