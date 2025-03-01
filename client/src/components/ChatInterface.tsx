@@ -35,6 +35,35 @@ export default function ChatInterface() {
     scrollToBottom();
   }, [messages, isTyping]);
 
+  // Listen for suggested question events
+  useEffect(() => {
+    const handleSuggestedQuestion = (event: CustomEvent) => {
+      const question = event.detail;
+      if (question) {
+        // Add user message to the chat
+        const userMessage: MessageType = {
+          id: `user-${Date.now()}`,
+          role: "user",
+          content: question,
+          createdAt: new Date().toISOString(),
+          sources: [],
+        };
+        
+        setMessages((prev) => [...prev, userMessage]);
+        setIsTyping(true);
+        
+        // Send the message to the API
+        chatMutation.mutate(question);
+      }
+    };
+
+    window.addEventListener('suggested-question', handleSuggestedQuestion as EventListener);
+    
+    return () => {
+      window.removeEventListener('suggested-question', handleSuggestedQuestion as EventListener);
+    };
+  }, []);
+
   const chatMutation = useMutation({
     mutationFn: async (message: string) => {
       try {
