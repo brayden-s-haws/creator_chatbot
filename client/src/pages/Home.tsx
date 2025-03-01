@@ -12,8 +12,8 @@ export default function Home() {
       {/* Header */}
       <header className="bg-white border-b border-slate-200 py-4">
         <div className="container mx-auto px-4 flex justify-between items-center">
-          <h1 className="text-xl font-bold text-primary">Run the Business Chatbot</h1>
-          <a href="https://runthebusiness.substack.com/" target="_blank" rel="noopener noreferrer" className="text-sm text-slate-600 hover:text-primary transition">About</a>
+          <img src="/client/rtblogo.png" alt="Run the Business" className="h-8" />
+          <a href="https://runthebusiness.substack.com/" target="_blank" rel="noopener noreferrer" className="text-sm text-slate-600 hover:text-primary transition">Learn More</a>
         </div>
       </header>
 
@@ -25,7 +25,7 @@ export default function Home() {
           
           {/* Powered By Section */}
           <div className="mt-3 flex justify-center">
-            <p className="text-sm text-slate-500">Powered by Run the Business content & OpenAI</p>
+            <p className="text-sm text-slate-500">Powered by <a href="https://runthebusiness.substack.com" target="_blank" rel="noopener noreferrer" className="text-blue-600">Run the Business</a></p>
           </div>
         </div>
         
