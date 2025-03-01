@@ -37,7 +37,7 @@ export default function LinksDropdown() {
         </DropdownMenuItem>
         <DropdownMenuItem>
           <a 
-            href="https://www.ibrahimbashir.com/teaching" 
+            href="https://maven.com/ibscribe/scaling-b2b-saas" 
             target="_blank" 
             rel="noopener noreferrer"
             className="w-full"
