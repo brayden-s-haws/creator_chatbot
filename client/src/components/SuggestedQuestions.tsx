@@ -10,7 +10,15 @@ const SUGGESTED_QUESTIONS = [
   "What metrics should I track for product-market fit?",
   "How do I prioritize features for my roadmap?",
   "What's the difference between product-led vs sales-led growth?",
-  "How do I create an effective product launch plan?"
+  "How do I create an effective product launch plan?",
+  "How can I reduce customer churn?",
+  "What's the best way to gather user feedback?",
+  "How do I identify my product's core value proposition?",
+  "What frameworks help with product pricing decisions?",
+  "How should I structure my product team for success?",
+  "What are best practices for running effective customer interviews?",
+  "How do I validate product ideas before building them?",
+  "What is a good North Star metric for SaaS products?"
 ];
 
 export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuestionsProps) {
