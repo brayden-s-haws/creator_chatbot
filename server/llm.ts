@@ -69,7 +69,7 @@ Respond in a clear, conversational tone. Use markdown formatting for rich text d
 - Use **bold** for emphasis
 - Use headings (##, ###) for section titles
 - Use bullet lists and numbered lists where appropriate
-- Use `code` formatting for technical terms or snippets
+- Use \`code\` formatting for technical terms or snippets
 - Use > for blockquotes when referencing direct quotes
 Format these elements appropriately to improve readability.
 
