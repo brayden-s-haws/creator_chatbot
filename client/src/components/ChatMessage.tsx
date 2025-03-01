@@ -37,7 +37,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   const handleCitationClick = useCallback((index: number) => {
     setActiveCitation(activeCitation === index ? null : index);
     
-    // Open the URL in a new tab if sources exist
+    // Only try to open URLs for sources that exist
     if (message.sources && index < message.sources.length && message.sources[index]?.url) {
       window.open(message.sources[index].url, '_blank', 'noopener,noreferrer');
     } else {
@@ -45,19 +45,21 @@ export default function ChatMessage({ message }: ChatMessageProps) {
     }
   }, [activeCitation, message.sources]);
 
-  // Process content to add inline citation links
+  // Process content to add interactive citation buttons
   const processContent = (content: string) => {
-    if (!message.sources || message.sources.length === 0) {
+    if (!message.sources) {
       return content;
     }
 
-    // Replace citation markers like [1], [2], etc. with interactive citation spans
+    // Replace citation markers like [1], [2], etc. with interactive citation buttons
     return content.replace(/\[(\d+)\]/g, (match, citationNumber) => {
-      const num = parseInt(citationNumber, 10);
+      const num = parseInt(citationNumber, 10) - 1; // Convert to 0-based index
       
-      // Always return a citation span, even if the source doesn't exist yet
-      // This ensures all citation numbers are clickable
-      return `<span class="inline-citation">[${citationNumber}]</span>`;
+      // Check if this citation number exists in our sources
+      const sourceExists = message.sources && num < message.sources.length;
+      
+      // Return a button that will be processed by the span renderer in ReactMarkdown
+      return `<span class="inline-citation" data-citation-index="${num}" data-citation-number="${citationNumber}">${citationNumber}</span>`;
     });
   };
 
@@ -100,12 +102,20 @@ export default function ChatMessage({ message }: ChatMessageProps) {
               ),
               span: ({ node, ...props }) => {
                 if (props.className === 'inline-citation') {
-                  const citationText = props.children?.toString() || '';
-                  const citationNumber = parseInt(citationText.replace(/[\[\]]/g, ''), 10);
+                  // Extract citation index from the data attribute
+                  const citationIndexAttr = node.properties?.['data-citation-index'];
+                  const citationNumberAttr = node.properties?.['data-citation-number'];
                   
-                  // Check if citation exists in sources
-                  const citationIndex = citationNumber - 1;
-                  const sourceExists = message.sources && citationIndex < message.sources.length;
+                  const citationIndex = typeof citationIndexAttr === 'string' 
+                    ? parseInt(citationIndexAttr, 10) 
+                    : parseInt(props.children?.toString() || '1', 10) - 1;
+                  
+                  const citationNumber = typeof citationNumberAttr === 'string'
+                    ? citationNumberAttr
+                    : props.children?.toString() || '1';
+                  
+                  // Determine if the source exists
+                  const sourceExists = message.sources && citationIndex >= 0 && citationIndex < message.sources.length;
                   
                   return (
                     <button 
@@ -113,8 +123,14 @@ export default function ChatMessage({ message }: ChatMessageProps) {
                         e.preventDefault();
                         handleCitationClick(citationIndex);
                       }}
-                      className="inline-flex items-center justify-center bg-blue-100 text-primary text-xs rounded-full w-5 h-5 align-text-top font-medium hover:bg-blue-200 transition-colors cursor-pointer"
+                      className={`inline-flex items-center justify-center text-xs rounded-full w-5 h-5 align-text-top font-medium transition-colors ${
+                        sourceExists 
+                          ? "bg-blue-100 text-primary hover:bg-blue-200 cursor-pointer" 
+                          : "bg-gray-100 text-gray-500 cursor-not-allowed"
+                      }`}
                       style={{ border: 'none', padding: 0, margin: '0 2px' }}
+                      title={sourceExists ? "Click to view source" : "Source not available"}
+                      disabled={!sourceExists}
                     >
                       {citationNumber}
                     </button>
