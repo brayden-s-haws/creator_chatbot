@@ -167,7 +167,8 @@ export default function ChatMessage({ message }: ChatMessageProps) {
             {processContent(message.content)}
           </ReactMarkdown>
 
-          {message.sources && message.sources.length > 0 && (
+          {/* Only show sources section when there are sources AND it's not general knowledge */}
+          {message.sources && message.sources.length > 0 && !message.isGeneralKnowledge && (
             <div className="bg-slate-50 p-3 rounded-md mt-3 text-sm border border-slate-200">
               <h4 className="font-medium text-slate-700 mb-1">Sources:</h4>
               <ul className="space-y-1 text-slate-600">
