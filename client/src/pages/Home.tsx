@@ -12,7 +12,7 @@ export default function Home() {
       {/* Header */}
       <header className="bg-white border-b border-slate-200 py-4">
         <div className="container mx-auto px-4 flex justify-between items-center">
-          <img src="/client/rtblogo.png" alt="Run the Business" className="h-8" />
+          <img src="/rtblogo.png" alt="Run the Business" className="h-8" />
           <a href="https://runthebusiness.substack.com/" target="_blank" rel="noopener noreferrer" className="text-sm text-slate-600 hover:text-primary transition">Learn More</a>
         </div>
       </header>
