@@ -103,19 +103,21 @@ export default function ChatMessage({ message }: ChatMessageProps) {
                   const citationText = props.children?.toString() || '';
                   const citationNumber = parseInt(citationText.replace(/[\[\]]/g, ''), 10);
                   
+                  // Check if citation exists in sources
+                  const citationIndex = citationNumber - 1;
+                  const sourceExists = message.sources && citationIndex < message.sources.length;
+                  
                   return (
-                    <a 
-                      {...props}
-                      href="#"
+                    <button 
                       onClick={(e) => {
                         e.preventDefault();
-                        handleCitationClick(citationNumber - 1);
+                        handleCitationClick(citationIndex);
                       }}
-                      className="inline-flex items-center justify-center bg-blue-100 text-primary text-xs rounded-full w-5 h-5 align-baseline font-medium hover:bg-blue-200 transition-colors"
-                      style={{ textDecoration: 'none', verticalAlign: 'text-top' }}
+                      className="inline-flex items-center justify-center bg-blue-100 text-primary text-xs rounded-full w-5 h-5 align-text-top font-medium hover:bg-blue-200 transition-colors cursor-pointer"
+                      style={{ border: 'none', padding: 0, margin: '0 2px' }}
                     >
                       {citationNumber}
-                    </a>
+                    </button>
                   );
                 }
                 return <span {...props} />;

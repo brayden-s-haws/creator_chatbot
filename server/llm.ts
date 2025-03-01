@@ -43,6 +43,7 @@ export async function generateAnswer(
   // Format context for the prompt
   let contextText = "";
   const sources: SourceCitation[] = [];
+  const sourceMap: Record<string, number> = {}; // Track citation indices
 
   if (!usingGeneralKnowledge) {
     contextText = "Here are the relevant content sections to build your answer from:\n\n";
@@ -52,12 +53,14 @@ export async function generateAnswer(
       contextText += `[Content ${index + 1}] ${chunk.content}\n\n`;
 
       // Add source if not already included
-      const sourceExists = sources.some(source => source.url === chunk.url);
-      if (!sourceExists) {
+      const sourceExists = sourceMap[chunk.url];
+      if (sourceExists === undefined) {
+        // Add to sources array and track its index
         sources.push({
           title: chunk.title,
           url: chunk.url,
         });
+        sourceMap[chunk.url] = sources.length - 1;
       }
     });
   }
@@ -80,6 +83,8 @@ Respond in a clear, conversational tone. Use markdown formatting for rich text d
 Format these elements appropriately to improve readability.
 
 When citing information from the provided sources, use numbered inline citations like [1], [2], etc. that correspond to the order of sources provided. Each citation number should match the index of the source in the sources list (starting from 1). For example, "According to research [1], product teams should focus on..." where [1] refers to the first source in the list.
+
+IMPORTANT: Make sure all citation numbers in your response ([1], [2], etc.) have corresponding sources in the sources list. DO NOT use citation numbers that exceed the total number of available sources.
 
 Important: Do not mention "Run the Business" or "Substack" in your actual answer. Respond as if you're having a direct conversation.`,
   };
