@@ -73,6 +73,8 @@ Respond in a clear, conversational tone. Use markdown formatting for rich text d
 - Use > for blockquotes when referencing direct quotes
 Format these elements appropriately to improve readability.
 
+When citing information from the provided sources, use numbered inline citations like [1], [2], etc. that correspond to the order of sources provided. Each citation number should match the index of the source in the sources list (starting from 1). For example, "According to research [1], product teams should focus on..." where [1] refers to the first source in the list.
+
 Important: Do not mention "Run the Business" or "Substack" in your actual answer. Respond as if you're having a direct conversation.`,
   };
 

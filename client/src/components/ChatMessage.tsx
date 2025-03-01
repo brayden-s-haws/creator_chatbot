@@ -2,6 +2,7 @@ import { MessageType } from "@shared/schema";
 import { ExternalLink } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
+import { useState, useCallback } from 'react';
 
 type ChatMessageProps = {
   message: MessageType;
@@ -28,6 +29,30 @@ export default function ChatMessage({ message }: ChatMessageProps) {
       </div>
     );
   }
+
+  // State to track active citation
+  const [activeCitation, setActiveCitation] = useState<number | null>(null);
+
+  // Handle citation click
+  const handleCitationClick = useCallback((index: number) => {
+    setActiveCitation(activeCitation === index ? null : index);
+  }, [activeCitation]);
+
+  // Process content to add inline citation links
+  const processContent = (content: string) => {
+    if (!message.sources || message.sources.length === 0) {
+      return content;
+    }
+
+    // Replace citation markers like [1], [2], etc. with interactive citation spans
+    return content.replace(/\[(\d+)\]/g, (match, citationNumber) => {
+      const num = parseInt(citationNumber, 10);
+      if (num > 0 && num <= message.sources.length) {
+        return `<span class="inline-citation">[${citationNumber}]</span>`;
+      }
+      return match;
+    });
+  };
 
   return (
     <div className="flex gap-3 max-w-3xl animate-in fade-in slide-in-from-bottom-5 duration-300">
@@ -66,9 +91,31 @@ export default function ChatMessage({ message }: ChatMessageProps) {
                   ? <code {...props} className="bg-slate-100 px-1 py-0.5 rounded text-sm font-mono" />
                   : <pre className="bg-slate-100 p-3 rounded my-2 text-sm font-mono overflow-x-auto"><code {...props} /></pre>
               ),
+              span: ({ node, ...props }) => {
+                if (props.className === 'inline-citation') {
+                  const citationText = props.children?.toString() || '';
+                  const citationNumber = parseInt(citationText.replace(/[\[\]]/g, ''), 10);
+                  
+                  return (
+                    <a 
+                      {...props}
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleCitationClick(citationNumber - 1);
+                      }}
+                      className="inline-flex items-center justify-center bg-blue-100 text-primary text-xs rounded-full w-5 h-5 align-baseline font-medium hover:bg-blue-200 transition-colors"
+                      style={{ textDecoration: 'none', verticalAlign: 'text-top' }}
+                    >
+                      {citationNumber}
+                    </a>
+                  );
+                }
+                return <span {...props} />;
+              }
             }}
           >
-            {message.content}
+            {processContent(message.content)}
           </ReactMarkdown>
 
           {message.sources && message.sources.length > 0 && (
@@ -76,13 +123,17 @@ export default function ChatMessage({ message }: ChatMessageProps) {
               <h4 className="font-medium text-slate-700 mb-1">Sources:</h4>
               <ul className="space-y-1 text-slate-600">
                 {message.sources.map((source, idx) => (
-                  <li key={idx}>
+                  <li 
+                    key={idx} 
+                    className={`transition-colors duration-200 rounded p-1 ${activeCitation === idx ? 'bg-blue-100' : ''}`}
+                  >
                     <a 
                       href={source.url} 
                       target="_blank" 
                       rel="noopener noreferrer" 
                       className="text-primary hover:underline flex items-center gap-1"
                     >
+                      <span className="inline-flex items-center justify-center bg-blue-100 text-primary text-xs rounded-full w-5 h-5 mr-1 font-medium">{idx + 1}</span>
                       <span>{source.title}</span>
                       <ExternalLink className="w-3 h-3" />
                     </a>
