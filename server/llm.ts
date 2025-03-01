@@ -10,11 +10,9 @@ const openai = new OpenAI({
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const CHAT_MODEL = "gpt-4o";
 
-// Max number of sources to include with each message
-// Limiting to 4 sources to ensure proper display
-const MAX_SOURCES = 4;
-
-console.log("Using MAX_SOURCES:", MAX_SOURCES);
+// We'll use all available sources with each message
+// No maximum limit to ensure all citations have corresponding sources
+console.log("Using all available sources for citations");
 
 // This function has been moved to embeddings.ts
 
@@ -84,7 +82,7 @@ Format these elements appropriately to improve readability.
 
 When citing information from the provided sources, use numbered inline citations like [1], [2], etc. that correspond to the order of sources provided. Each citation number should match the index of the source in the sources list (starting from 1). For example, "According to research [1], product teams should focus on..." where [1] refers to the first source in the list.
 
-IMPORTANT: Always ensure that every citation number in your response ([1], [2], etc.) corresponds to an actual source in the sources list. The maximum number of sources available is ${sources.length}, so use ONLY citation numbers [1] through [${sources.length}]. NEVER use citation numbers higher than the number of available sources. If you need to reference something without a source, state it as general knowledge without using any numbered citation.
+IMPORTANT: Always ensure that every citation number in your response ([1], [2], etc.) corresponds to an actual source in the sources list. The maximum number of sources available is ${sources.length}, so use ONLY citation numbers [1] through [${sources.length}]. NEVER use citation numbers higher than the number of available sources. Double-check your response before finalizing to make sure all citation numbers are valid and within range. If you need to reference something without a source, state it as general knowledge without using any numbered citation.
 
 Important: Do not mention "Run the Business" or "Substack" in your actual answer. Respond as if you're having a direct conversation.`,
   };

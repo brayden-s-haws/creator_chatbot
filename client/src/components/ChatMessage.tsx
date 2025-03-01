@@ -122,7 +122,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
                   
                   // Log issue with invalid citations for debugging
                   if (isInvalidCitation) {
-                    console.log(`Invalid citation: [${citationNumber}] - only ${message.sources?.length || 0} sources available`);
+                    console.error(`Invalid citation: [${citationNumber}] - only ${message.sources?.length || 0} sources available`);
                   }
                   
                   return (
