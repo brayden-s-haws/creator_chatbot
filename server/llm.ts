@@ -11,8 +11,8 @@ const openai = new OpenAI({
 const CHAT_MODEL = "gpt-4o";
 
 // Max number of sources to include with each message
-// Setting a higher limit to accommodate all citations in the text
-const MAX_SOURCES = 20; // Increased from 10 to handle more sources
+// Limiting to 4 sources to ensure proper display
+const MAX_SOURCES = 4;
 
 console.log("Using MAX_SOURCES:", MAX_SOURCES);
 
@@ -84,7 +84,7 @@ Format these elements appropriately to improve readability.
 
 When citing information from the provided sources, use numbered inline citations like [1], [2], etc. that correspond to the order of sources provided. Each citation number should match the index of the source in the sources list (starting from 1). For example, "According to research [1], product teams should focus on..." where [1] refers to the first source in the list.
 
-IMPORTANT: Make sure all citation numbers in your response ([1], [2], etc.) have corresponding sources in the sources list. DO NOT use citation numbers that exceed the total number of available sources. If you need to reference something without a source, avoid using numbered citations for it. 
+IMPORTANT: Use no more than 4 citations in your response, labeled as [1], [2], [3], and [4] only. DO NOT use citation numbers higher than 4 in your response. If you need to reference something without a source, avoid using numbered citations for it. 
 
 If you must include a citation number in your response but don't have a corresponding source, ensure you make it clear in your response that this information is based on general knowledge, not a specific source.
 

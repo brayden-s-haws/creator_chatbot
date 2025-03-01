@@ -51,12 +51,20 @@ export default function ChatMessage({ message }: ChatMessageProps) {
       return content;
     }
 
+    // Limit to 4 sources maximum
+    const maxSources = 4;
+    
     // Replace citation markers like [1], [2], etc. with interactive citation buttons
     return content.replace(/\[(\d+)\]/g, (match, citationNumber) => {
       const num = parseInt(citationNumber, 10) - 1; // Convert to 0-based index
       
-      // Check if this citation number exists in our sources
-      const sourceExists = message.sources && num < message.sources.length;
+      // Check if this citation number exists in our sources and is within our limit
+      const sourceExists = message.sources && num < message.sources.length && num < maxSources;
+      
+      if (!sourceExists) {
+        // If citation doesn't exist or exceeds our limit, just return the original text
+        return match;
+      }
       
       // Return a button that will be processed by the span renderer in ReactMarkdown
       return `<span class="inline-citation" data-citation-index="${num}" data-citation-number="${citationNumber}">${citationNumber}</span>`;
