@@ -58,13 +58,17 @@ export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuesti
         </div>
       </Card>
       
-      {/* RTB image with controlled height */}
-      <Card className="p-4 flex flex-col items-center mt-auto">
+      {/* New section for RTB image */}
+      <Card className="p-6 flex flex-col items-center">
         <img 
           src="/rtbbig.png" 
           alt="Run The Business" 
-          className="max-w-full h-auto max-h-[120px] object-contain"
+          className="max-w-full h-auto"
         />
+        <div className="text-center mt-2 text-sm text-slate-500">
+          <p className="text-sm text-slate-500">Powered by <a href="https://runthebusiness.substack.com" target="_blank" rel="noopener noreferrer" className="text-blue-600">Run the Business</a></p>
+          <p></p>
+        </div>
       </Card>
     </div>
   );
