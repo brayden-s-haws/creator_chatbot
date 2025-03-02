@@ -58,12 +58,12 @@ export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuesti
         </div>
       </Card>
       
-      {/* New section for RTB image */}
-      <Card className="p-6 flex flex-col items-center">
+      {/* RTB image with controlled height */}
+      <Card className="p-4 flex flex-col items-center mt-auto">
         <img 
           src="/rtbbig.png" 
           alt="Run The Business" 
-          className="max-w-full h-auto"
+          className="max-w-full h-auto max-h-[120px] object-contain"
         />
       </Card>
     </div>
