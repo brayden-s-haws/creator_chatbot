@@ -186,23 +186,8 @@ export default function ChatInterface() {
       {/* Chat Input Area */}
       <div className="p-4 border-t border-slate-200">
         <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-          <div className="flex gap-2">
-            <Input
-              type="text"
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Ask a question about product management..."
-              className="flex-grow"
-            />
-            <Button type="submit" disabled={isTyping || !inputMessage.trim()}>
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="flex justify-end items-center mt-1 gap-2">
-            {/* Buttons moved to floating chip */}
-          </div>
-          <div className="flex justify-center mt-2">
-            <div className="chip">
+          <div className="flex justify-end items-center mb-2 gap-2">
+            <div className="flex gap-2">
               <Button 
                 type="button"
                 variant="ghost" 
@@ -266,6 +251,18 @@ export default function ChatInterface() {
                 </svg>
               </Button>
             </div>
+          </div>
+          <div className="flex gap-2">
+            <Input
+              type="text"
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              placeholder="Ask a question about product management..."
+              className="flex-grow"
+            />
+            <Button type="submit" disabled={isTyping || !inputMessage.trim()}>
+              <Send className="h-4 w-4" />
+            </Button>
           </div>
         </form>
       </div>
