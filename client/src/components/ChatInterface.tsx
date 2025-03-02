@@ -4,7 +4,7 @@ import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { PaperPlaneIcon, Loader2 } from "lucide-react";
+import { Send as PaperPlaneIcon, Loader2 } from "lucide-react";
 import { format } from 'date-fns';
 
 export default function ChatInterface() {
