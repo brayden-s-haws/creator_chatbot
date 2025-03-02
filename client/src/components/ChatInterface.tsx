@@ -16,7 +16,7 @@ export default function ChatInterface() {
     {
       id: "welcome-message",
       role: "assistant",
-      content: "Hi there! I'm Ibrahim Bashir, experienced product leader and author of Run the Business. What product or business questions can I help you with today?",
+      content: "Hi there! I'm Ibrahim Bashir, product leader and author of Run the Business. What product or business questions can I help you with today?",
       createdAt: new Date().toISOString(),
       sources: [],
     },
