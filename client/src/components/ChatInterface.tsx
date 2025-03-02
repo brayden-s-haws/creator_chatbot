@@ -19,7 +19,7 @@ export default function ChatInterface() {
       sources: [],
     },
   ]);
-  
+
   const [inputMessage, setInputMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -48,17 +48,17 @@ export default function ChatInterface() {
           createdAt: new Date().toISOString(),
           sources: [],
         };
-        
+
         setMessages((prev) => [...prev, userMessage]);
         setIsTyping(true);
-        
+
         // Send the message to the API
         chatMutation.mutate(question);
       }
     };
 
     window.addEventListener('suggested-question', handleSuggestedQuestion as EventListener);
-    
+
     return () => {
       window.removeEventListener('suggested-question', handleSuggestedQuestion as EventListener);
     };
@@ -76,12 +76,12 @@ export default function ChatInterface() {
           body: JSON.stringify({ message }),
           credentials: "include",
         });
-        
+
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(errorText || `Error ${response.status}: ${response.statusText}`);
         }
-        
+
         // Parse JSON manually
         const data = await response.json();
         return data as MessageType;
@@ -108,9 +108,9 @@ export default function ChatInterface() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!inputMessage.trim()) return;
-    
+
     // Add user message to the chat
     const userMessage: MessageType = {
       id: `user-${Date.now()}`,
@@ -119,11 +119,11 @@ export default function ChatInterface() {
       createdAt: new Date().toISOString(),
       sources: [],
     };
-    
+
     setMessages((prev) => [...prev, userMessage]);
     setInputMessage("");
     setIsTyping(true);
-    
+
     // Send the message to the API
     chatMutation.mutate(inputMessage);
   };
@@ -158,7 +158,7 @@ export default function ChatInterface() {
             message={message} 
           />
         ))}
-        
+
         {/* Typing Indicator */}
         {isTyping && (
           <div className="flex gap-3 max-w-3xl">
@@ -182,7 +182,7 @@ export default function ChatInterface() {
         )}
         <div ref={messagesEndRef} />
       </div>
-      
+
       {/* Chat Input Area */}
       <div className="p-4 border-t border-slate-200">
         <form onSubmit={handleSubmit} className="flex flex-col gap-2">
@@ -207,7 +207,7 @@ export default function ChatInterface() {
                 const chatContent = messages.map(m => 
                   `${m.role === 'assistant' ? 'Ibrahim Bot' : 'You'}: ${m.content}`
                 ).join('\n\n');
-                
+
                 navigator.clipboard.writeText(chatContent)
                   .then(() => {
                     // You could add a toast notification here
@@ -217,7 +217,7 @@ export default function ChatInterface() {
                     console.error('Failed to copy: ', err);
                   });
               }}
-              className="text-slate-500 hover:text-primary px-3 py-1 flex items-center justify-center"
+              className="text-slate-500 hover:text-primary px-2 py-1 flex items-center justify-center"
               title="Copy chat to clipboard"
             >
               <svg 
@@ -241,7 +241,7 @@ export default function ChatInterface() {
               variant="ghost" 
               size="sm" 
               onClick={handleClearChat}
-              className="text-slate-500 hover:text-primary px-3 py-1 flex items-center justify-center"
+              className="text-slate-500 hover:text-primary px-2 py-1 flex items-center justify-center"
               title="Clear chat"
             >
               <svg 
