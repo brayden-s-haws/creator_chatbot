@@ -5,8 +5,8 @@ import SuggestedQuestions from "@/components/SuggestedQuestions";
 import CsvUploader from "@/components/CsvUploader";
 import LinksDropdown from "@/components/LinksDropdown";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
-import { ExternalLink } from "lucide-react";
+import Card from "@/components/ui/card"; // Assuming this component exists.  Add import if necessary.
+import ExternalLink from "@/components/ui/externalLink"; // Assuming this component exists. Add import if necessary.
 
 
 export default function Home() {
@@ -18,7 +18,15 @@ export default function Home() {
             <img src="/rtblogo.png" alt="Run The Business" className="h-8" />
             <h1 className="text-xl font-bold text-slate-800">Run the Business</h1>
           </div>
-          <LinksDropdown />
+          <a 
+            href="https://www.runthebusiness.net/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-sm text-primary hover:underline flex items-center gap-1"
+          >
+            Ibrahim's Links
+            <ExternalLink className="h-3.5 w-3.5" />
+          </a>
         </div>
       </header>
 
