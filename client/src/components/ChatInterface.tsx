@@ -186,7 +186,7 @@ export default function ChatInterface() {
       {/* Chat Input Area */}
       {/* Floating Action Buttons */}
       {messages.length > 1 && (
-        <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 z-10">
+        <div className="absolute -top-14 left-1/2 transform -translate-x-1/2 z-10">
           <div className="bg-slate-800/80 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-3 shadow-lg">
             <button 
               onClick={() => {
@@ -213,20 +213,9 @@ export default function ChatInterface() {
               aria-label="Clear chat"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-              </svg>
-            </button>
-            <button
-              onClick={() => {}}
-              className="text-white p-1 hover:bg-slate-700/50 rounded-full transition-colors"
-              aria-label="Retry"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="17 1 21 5 17 9"></polyline>
-                <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
-                <polyline points="7 23 3 19 7 15"></polyline>
-                <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                <path d="M3 6h18"></path>
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
               </svg>
             </button>
           </div>
