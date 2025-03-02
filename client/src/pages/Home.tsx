@@ -14,7 +14,7 @@ export default function Home() {
       <header className="bg-white border-b border-slate-200 py-4">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <img src="/rtblogo.png" alt="Run the Business" className="h-8" />
-          <h1 className="text-xl font-semibold text-slate-800">Run the Business</h1>
+          <h1 className="text-xl font-semibold text-slate-800 font-['Poppins'] font-semibold">Run the Business</h1>
           <LinksDropdown />
         </div>
       </header>
