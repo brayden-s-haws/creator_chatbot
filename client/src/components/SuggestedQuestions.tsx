@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent, Button } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 type SuggestedQuestionsProps = {
   onSelectQuestion?: (question: string) => void;
