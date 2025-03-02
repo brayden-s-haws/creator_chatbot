@@ -65,9 +65,6 @@ export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuesti
           alt="Run The Business" 
           className="max-w-full h-auto"
         />
-        <div className="text-center mt-2 text-sm text-slate-500">
-          Powered by Ibrahim's book "Run The Business"
-        </div>
       </Card>
     </div>
   );
