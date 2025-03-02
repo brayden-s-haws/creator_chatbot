@@ -183,15 +183,6 @@ export default function ChatMessage({ message }: ChatMessageProps) {
               </ul>
             </div>
           )}
-
-          {message.isGeneralKnowledge && (
-            <div className="bg-slate-50 p-3 rounded-md mt-3 text-sm border border-slate-200">
-              <h4 className="font-medium text-slate-700 mb-1">Note:</h4>
-              <p className="text-slate-600">
-                This response is based on general knowledge about product management and business strategy.
-              </p>
-            </div>
-          )}
         </div>
       </div>
     </div>
