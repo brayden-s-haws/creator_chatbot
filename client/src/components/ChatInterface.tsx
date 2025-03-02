@@ -150,7 +150,7 @@ export default function ChatInterface() {
         ref={chatMessagesRef}
         className="flex-grow p-4 overflow-y-auto space-y-6"
         style={{ 
-          minHeight: "300px", 
+          minHeight: "200px", 
           maxHeight: "calc(100vh - 240px)",
           height: "auto" 
         }}
