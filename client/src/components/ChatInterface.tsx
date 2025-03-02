@@ -7,9 +7,7 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import ChatMessage from "./ChatMessage";
 import { MessageType } from "@shared/schema";
-import { Send, FileText } from "lucide-react";
-import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
-import { saveAs } from "file-saver";
+import { Send } from "lucide-react";
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState<MessageType[]>([
@@ -141,126 +139,6 @@ export default function ChatInterface() {
       },
     ]);
   };
-  
-  const handleExportChat = async () => {
-    try {
-      // Create the document
-      const doc = new Document({
-        title: "Chat with Ibrahim Bashir",
-        description: "Exported chat conversation",
-        styles: {
-          paragraphStyles: [
-            {
-              id: "Assistant",
-              name: "Assistant",
-              basedOn: "Normal",
-              run: {
-                color: "000000",
-              },
-              paragraph: {
-                spacing: {
-                  before: 200,
-                  after: 200,
-                },
-              },
-            },
-            {
-              id: "User",
-              name: "User",
-              basedOn: "Normal",
-              run: {
-                color: "4F33FF",
-                bold: true,
-              },
-              paragraph: {
-                spacing: {
-                  before: 200,
-                  after: 200,
-                },
-              },
-            },
-          ],
-        },
-      });
-      
-      // Add title
-      doc.addSection({
-        children: [
-          new Paragraph({
-            text: "Conversation with Ibrahim Bashir",
-            heading: HeadingLevel.HEADING_1,
-          }),
-          new Paragraph({
-            text: `Exported on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}`,
-            spacing: {
-              after: 400,
-            },
-          }),
-        ],
-      });
-      
-      // Add messages
-      const paragraphs = messages.map((message) => {
-        if (message.role === "user") {
-          return new Paragraph({
-            style: "User",
-            children: [
-              new TextRun({
-                text: "You: ",
-                bold: true,
-              }),
-              new TextRun(message.content),
-            ],
-          });
-        } else {
-          let content = message.content;
-          // Check if there are sources
-          const sourceSection = message.sources && message.sources.length > 0 
-            ? [
-                new Paragraph({ text: "Sources:", bold: true }),
-                ...message.sources.map((source, index) => 
-                  new Paragraph({ text: `[${index + 1}] ${source.title}: ${source.url}` })
-                )
-              ] 
-            : [];
-          
-          return [
-            new Paragraph({
-              style: "Assistant",
-              children: [
-                new TextRun({
-                  text: "Ibrahim Bashir: ",
-                  bold: true,
-                }),
-                new TextRun(content),
-              ],
-            }),
-            ...sourceSection,
-          ];
-        }
-      }).flat();
-      
-      doc.addSection({
-        children: paragraphs,
-      });
-      
-      // Generate and save the document
-      const buffer = await Packer.toBlob(doc);
-      saveAs(buffer, `ibrahim-chat-${new Date().toISOString().slice(0, 10)}.docx`);
-      
-      toast({
-        title: "Chat exported successfully",
-        description: "Your conversation has been saved as a DOCX file.",
-      });
-    } catch (error) {
-      console.error("Error exporting chat:", error);
-      toast({
-        variant: "destructive",
-        title: "Export failed",
-        description: "There was a problem exporting your chat.",
-      });
-    }
-  };
 
   return (
     <Card className="flex-grow flex flex-col overflow-hidden shadow-sm border border-slate-200">
@@ -320,26 +198,15 @@ export default function ChatInterface() {
               <Send className="h-4 w-4" />
             </Button>
           </div>
-          <div className="flex gap-2 self-end">
-            <Button 
-              type="button"
-              variant="ghost" 
-              size="sm" 
-              onClick={handleExportChat}
-              className="text-slate-500 hover:text-primary px-3 py-1 mt-1"
-            >
-              Export chat
-            </Button>
-            <Button 
-              type="button"
-              variant="ghost" 
-              size="sm" 
-              onClick={handleClearChat}
-              className="text-slate-500 hover:text-primary px-3 py-1 mt-1"
-            >
-              Clear chat
-            </Button>
-          </div>
+          <Button 
+            type="button"
+            variant="ghost" 
+            size="sm" 
+            onClick={handleClearChat}
+            className="self-end text-slate-500 hover:text-primary px-3 py-1 mt-1"
+          >
+            Clear chat
+          </Button>
         </form>
       </div>
     </Card>
