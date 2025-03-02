@@ -79,19 +79,19 @@ export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuesti
       </div>
       
       <div className="space-y-2 min-h-[180px]">
-        <AnimatePresence mode="sync" initial={false}>
+        <AnimatePresence mode="wait" initial={false}>
           {visibleQuestions.map((question, index) => (
             <motion.button 
               key={question}
               className="flex items-center w-full px-4 py-3 text-xs bg-slate-50 border border-slate-200 rounded-full hover:bg-slate-100 text-slate-700 hover:text-primary transition"
               onClick={() => handleQuestionClick(question)}
-              initial={{ opacity: 0, y: 10, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.98 }}
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
               transition={{ 
-                duration: 0.4, 
-                delay: index * 0.08,
-                ease: "easeInOut"
+                duration: 0.3, 
+                delay: index * 0.05,
+                ease: "easeOut"
               }}
             >
               <span className="text-slate-400 mr-2">
