@@ -1,14 +1,20 @@
 import { MessageType } from "@shared/schema";
 
 // Helper function to make API requests
-export async function fetchChat(message: string): Promise<MessageType> {
+export async function fetchChat(
+  message: string, 
+  history?: { role: string, content: string }[]
+): Promise<MessageType> {
   try {
     const response = await fetch("/api/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ 
+        message,
+        history
+      }),
     });
 
     if (!response.ok) {

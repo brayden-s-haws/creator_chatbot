@@ -18,6 +18,10 @@ router.post("/api/chat", async (req, res) => {
     // Validate request body
     const schema = z.object({
       message: z.string().min(1).max(500),
+      history: z.array(z.object({
+        role: z.string(),
+        content: z.string()
+      })).optional()
     });
     
     const validationResult = schema.safeParse(req.body);
@@ -26,7 +30,7 @@ router.post("/api/chat", async (req, res) => {
       return res.status(400).json({ message: "Invalid request" });
     }
     
-    const { message } = validationResult.data;
+    const { message, history = [] } = validationResult.data;
     
     // Store the query and generate embedding
     const queryEmbedding = await createEmbedding(message);
@@ -38,8 +42,8 @@ router.post("/api/chat", async (req, res) => {
     // Search for similar content
     const similarChunks = await searchSimilarChunks(queryEmbedding, 5);
     
-    // Generate answer
-    const answer = await generateAnswer(message, similarChunks);
+    // Generate answer with conversation history
+    const answer = await generateAnswer(message, similarChunks, history);
     
     return res.json(answer);
   } catch (error) {

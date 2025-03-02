@@ -27,6 +27,7 @@ export default function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
+  const [conversationHistory, setConversationHistory] = useState<MessageType[]>([]); // Added state for conversation history
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -35,29 +36,29 @@ export default function ChatInterface() {
   // Track user interactions to only auto-scroll after user action
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
-  
+
   useEffect(() => {
     if (initialLoad) {
       setInitialLoad(false);
       return;
     }
-    
+
     // Only scroll if this is not the initial page load or user has interacted
     if (hasUserInteracted) {
       scrollToBottom();
     }
   }, [messages, isTyping, initialLoad, hasUserInteracted]);
-  
+
   // Set user interaction flag when input receives focus or text changes
   useEffect(() => {
     const handleUserInteraction = () => {
       setHasUserInteracted(true);
     };
-    
+
     // Add event listeners to track user interaction with the page
     window.addEventListener('click', handleUserInteraction);
     window.addEventListener('touchstart', handleUserInteraction);
-    
+
     return () => {
       window.removeEventListener('click', handleUserInteraction);
       window.removeEventListener('touchstart', handleUserInteraction);
@@ -79,6 +80,7 @@ export default function ChatInterface() {
         };
 
         setMessages((prev) => [...prev, userMessage]);
+        setConversationHistory((prev) => [...prev, userMessage]); // Update conversation history
         setIsTyping(true);
 
         // Send the message to the API
@@ -96,13 +98,16 @@ export default function ChatInterface() {
   const chatMutation = useMutation({
     mutationFn: async (message: string) => {
       try {
-        // Use the updated apiRequest function from queryClient
+        // Call the API to get a response
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ message }),
+          body: JSON.stringify({ 
+            message,
+            history: conversationHistory 
+          }),
           credentials: "include",
         });
 
@@ -121,6 +126,7 @@ export default function ChatInterface() {
     },
     onSuccess: (data: MessageType) => {
       setMessages((prev) => [...prev, data]);
+      setConversationHistory((prev) => [...prev, data]); // Update conversation history
       setIsTyping(false);
       queryClient.invalidateQueries({ queryKey: ["/api/system-status"] });
     },
@@ -139,7 +145,7 @@ export default function ChatInterface() {
     e.preventDefault();
 
     if (!inputMessage.trim()) return;
-    
+
     // Mark that user has interacted with the chat
     setHasUserInteracted(true);
 
@@ -153,6 +159,7 @@ export default function ChatInterface() {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    setConversationHistory((prev) => [...prev, userMessage]); // Update conversation history
     setInputMessage("");
     setIsTyping(true);
 
@@ -170,6 +177,7 @@ export default function ChatInterface() {
         sources: [],
       },
     ]);
+    setConversationHistory([]); // Clear conversation history
   };
 
   return (

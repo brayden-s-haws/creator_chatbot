@@ -29,11 +29,12 @@ interface VectorDocumentWithScore {
 }
 
 /**
- * Generate an answer based on the user's question and retrieved content
+ * Generate an answer based on the user's question, retrieved content, and conversation history
  */
 export async function generateAnswer(
   question: string,
-  relevantChunks: VectorDocumentWithScore[]
+  relevantChunks: VectorDocumentWithScore[],
+  conversationHistory: { role: string; content: string }[] = []
 ): Promise<MessageType> {
   // If no relevant chunks, use general knowledge
   const usingGeneralKnowledge = relevantChunks.length === 0;
@@ -102,13 +103,35 @@ ${usingGeneralKnowledge ? "Please answer using your general knowledge about prod
   };
 
   try {
+    // Create messages array including conversation history
+    const messages = [
+      systemMessage as any
+    ];
+    
+    // Add conversation history if it exists
+    if (conversationHistory.length > 0) {
+      // Add a system message explaining the context
+      messages.push({
+        role: "system",
+        content: "The following is the conversation history between the user and assistant. Use this context to inform your response to the current question."
+      });
+      
+      // Add the conversation history
+      conversationHistory.forEach(msg => {
+        messages.push({
+          role: msg.role,
+          content: msg.content
+        });
+      });
+    }
+    
+    // Add the current user question
+    messages.push(userMessage as any);
+    
     // Generate response from OpenAI
     const response = await openai.chat.completions.create({
       model: CHAT_MODEL,
-      messages: [
-        systemMessage as any,
-        userMessage as any,
-      ],
+      messages,
       temperature: 0.5,
       max_tokens: 1000,
     });
