@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export default function Home() {
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-slate-900">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
       {/* Header */}
       <header className="bg-white border-b border-slate-200 py-4">
         <div className="container mx-auto px-4 flex justify-between items-center">
@@ -38,7 +38,7 @@ export default function Home() {
 
           {/* Powered By Section */}
           <div className="mt-3 flex justify-center">
-            <p className="text-sm text-slate-500">Powered by <a href="https://runthebusiness.substack.com" target="_blank" rel="noopener noreferrer" className="text-[#f97316]">Run the Business</a></p>
+            <p className="text-sm text-slate-500">Powered by <a href="https://runthebusiness.substack.com" target="_blank" rel="noopener noreferrer" className="text-blue-600">Run the Business</a></p>
           </div>
         </div>
       </main>
