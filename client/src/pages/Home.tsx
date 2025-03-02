@@ -11,10 +11,10 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 py-4">
+      <header className="bg-white border-b border-slate-200 py-4 shadow-sm">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <img src="/rtblogo.png" alt="Run the Business" className="h-8" />
-          <h1 className="text-xl font-semibold text-slate-800 font-['Poppins'] font-semibold">Run the Business</h1>
+          <h1 className="text-xl font-semibold text-slate-800 font-['Poppins']">Run the Business</h1>
           <LinksDropdown />
         </div>
       </header>
