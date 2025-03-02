@@ -6,7 +6,7 @@ import CsvUploader from "@/components/CsvUploader";
 import LinksDropdown from "@/components/LinksDropdown";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Card from "@/components/ui/card"; // Assuming this component exists.  Add import if necessary.
-import ExternalLink from "@/components/ui/externalLink"; // Assuming this component exists. Add import if necessary.
+import { ExternalLink } from "lucide-react";
 
 
 export default function Home() {
