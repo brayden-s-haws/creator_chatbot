@@ -119,9 +119,11 @@ export default function ChatInterface() {
                       : "assistant-message"
                   }`}
                 >
-                  <ReactMarkdown className="prose prose-sm max-w-none message-content">
-                    {chat.content}
-                  </ReactMarkdown>
+                  <div className="prose prose-sm max-w-none message-content">
+                    <ReactMarkdown>
+                      {chat.content}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               </div>
             ))}
