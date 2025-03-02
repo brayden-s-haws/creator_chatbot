@@ -61,7 +61,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   };
 
   return (
-    <div className="flex gap-3 max-w-3xl animate-in fade-in slide-in-from-bottom-5 duration-300">
+    <div className="flex gap-3 max-w-3xl animate-in fade-in slide-in-from-bottom-5 duration-300 relative">
       <div className="flex-shrink-0">
         <div className="w-8 h-8 rounded-full overflow-hidden">
             <img 
@@ -193,9 +193,9 @@ export default function ChatMessage({ message }: ChatMessageProps) {
             </div>
           )}
 
-          {/* Action buttons for assistant messages only */}
+          {/* Action buttons for assistant messages only - icon only at bottom right */}
           {!isUser && (
-            <div className="flex justify-end mt-3 gap-2">
+            <div className="absolute bottom-2 right-2 flex gap-1.5">
               <button 
                 onClick={() => {
                   const chatContent = message.content;
@@ -207,7 +207,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
                       console.error('Failed to copy: ', err);
                     });
                 }}
-                className="text-slate-500 hover:text-primary px-2 py-1 flex items-center justify-center rounded-md text-sm"
+                className="text-slate-400 hover:text-primary w-7 h-7 flex items-center justify-center rounded-full hover:bg-slate-100"
                 title="Copy message to clipboard"
               >
                 <svg 
@@ -220,21 +220,18 @@ export default function ChatMessage({ message }: ChatMessageProps) {
                   strokeWidth="2" 
                   strokeLinecap="round" 
                   strokeLinejoin="round"
-                  className="h-4 w-4 mr-1"
+                  className="h-4 w-4"
                 >
                   <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
                   <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
                 </svg>
-                Copy
               </button>
               <button 
                 onClick={() => {
-                  // We need to import this from the parent component
-                  // Use a custom event to communicate with the parent
                   const clearEvent = new CustomEvent('clearChat');
                   document.dispatchEvent(clearEvent);
                 }}
-                className="text-slate-500 hover:text-primary px-2 py-1 flex items-center justify-center rounded-md text-sm"
+                className="text-slate-400 hover:text-primary w-7 h-7 flex items-center justify-center rounded-full hover:bg-slate-100"
                 title="Clear chat"
               >
                 <svg 
@@ -247,13 +244,12 @@ export default function ChatMessage({ message }: ChatMessageProps) {
                   strokeWidth="2" 
                   strokeLinecap="round" 
                   strokeLinejoin="round"
-                  className="h-4 w-4 mr-1"
+                  className="h-4 w-4"
                 >
                   <path d="M3 6h18"></path>
                   <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
                   <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
                 </svg>
-                Clear
               </button>
             </div>
           )}
