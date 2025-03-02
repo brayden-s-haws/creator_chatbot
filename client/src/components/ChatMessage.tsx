@@ -13,18 +13,9 @@ export default function ChatMessage({ message }: ChatMessageProps) {
 
   if (isUser) {
     return (
-      <div className="flex gap-3 justify-end max-w-3xl ml-auto animate-in fade-in slide-in-from-bottom-5 duration-300">
-        <div className="bg-[#d9a68c] text-white px-4 py-3 rounded-xl shadow-sm">
-          <p className="font-medium">{message.content}</p>
-        </div>
-        <div className="flex-shrink-0">
-          <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-[#d9a68c] shadow-sm">
-            <img 
-              src="/user_icon.svg" 
-              alt="User" 
-              className="w-full h-full object-cover"
-            />
-          </div>
+      <div className="flex justify-end max-w-3xl ml-auto animate-in fade-in slide-in-from-bottom-5 duration-300">
+        <div className="bg-[#ee7835] text-white px-6 py-4 rounded-full shadow-sm">
+          <p className="font-medium text-lg">{message.content}</p>
         </div>
       </div>
     );
