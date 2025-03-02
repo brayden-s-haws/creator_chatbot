@@ -8,6 +8,13 @@
   animation: fadeIn 0.3s ease-out;
 }
 
+/* Lemonade theme styles */
+.bg-lemonade {
+  background-color: #f7e99e;
+  border: 1px solid #e8d178;
+  color: #000000;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
