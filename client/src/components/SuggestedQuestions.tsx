@@ -39,13 +39,19 @@ export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuesti
     return questions;
   };
   
-  // Rotate questions every 10 seconds
+  // Rotate questions continuously
   useEffect(() => {
     if (!isAutoScrolling) return;
     
     const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % allQuestions.length);
-    }, 5000);
+      setCurrentIndex((prevIndex) => {
+        // When we reach the end of the original list, reset to 0 smoothly
+        if (prevIndex >= allQuestions.length - 1) {
+          return 0;
+        }
+        return prevIndex + 1;
+      });
+    }, 3000); // Slightly faster rotation
     
     return () => clearInterval(interval);
   }, [allQuestions.length, isAutoScrolling]);
@@ -91,15 +97,22 @@ export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuesti
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <div className="transition-all duration-500 ease-in-out" style={{ transform: `translateY(0)` }}>
-          {visibleQuestions().map((question, index) => (
+        <div 
+          className="transition-all duration-1000 ease-in-out" 
+          style={{ 
+            transform: `translateY(${-currentIndex * 48}px)` 
+          }}
+        >
+          {/* Display double the questions to create an infinite loop feeling */}
+          {[...allQuestions, ...allQuestions].map((question, index) => (
             <motion.button 
-              key={`${question}-${currentIndex + index}`}
+              key={`${question}-${index}`}
               className="flex items-center w-full px-4 py-3 mb-2 text-xs bg-slate-50 border border-slate-200 rounded-full hover:bg-slate-100 text-slate-700 hover:text-primary transition"
               onClick={() => handleQuestionClick(question)}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
+              initial={{ opacity: 0.9 }}
+              animate={{ opacity: 1 }}
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
             >
               <span className="text-slate-400 mr-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
