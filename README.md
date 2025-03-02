@@ -3,7 +3,7 @@
 ## Description
 Product management is a field filled with nuanced strategies and knowledge. While there's plenty of long-form content, accessing this information quickly through conversation can be challenging. Ibrahim Chatbot solves this problem by creating an AI-powered assistant trained on Ibrahim Bashir's content from his "Run the Business" blog. This allows product managers to have interactive conversations about product management concepts and get insights directly inspired by Ibrahim's expertise.
 
-![Ibrahim Chatbot Screenshot](https://github.com/username/ibrahim-chatbot/assets/12345678/example-image-id)
+![CleanShot Safari-2025-03-02](https://github.com/user-attachments/assets/943169b8-913f-4aa9-86f7-96e12eb9be96)
 
 If you're a product manager or interested in product, you can interact with this chatbot to get advice and insights on various product management topics.
 
