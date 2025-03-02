@@ -152,7 +152,7 @@ export default function ChatInterface() {
         style={{ 
           minHeight: "300px", 
           maxHeight: "calc(100vh - 240px)",
-          height: "auto" 
+          height: "100%" 
         }}
       >
         {messages.map((message) => (
