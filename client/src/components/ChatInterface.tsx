@@ -4,7 +4,7 @@ import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send as PaperPlaneIcon, Loader2 } from "lucide-react";
+import { Send, Loader2 } from "lucide-react";
 import { format } from 'date-fns';
 
 export default function ChatInterface() {
@@ -155,7 +155,7 @@ export default function ChatInterface() {
             {isSending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <PaperPlaneIcon className="h-4 w-4" />
+              <Send className="h-4 w-4" />
             )}
           </Button>
         </form>
