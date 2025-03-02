@@ -14,7 +14,7 @@ export default function Home() {
       <header className="bg-white border-b border-slate-200 py-4 shadow-sm">
         <div className="container mx-auto px-4 max-w-screen-xl flex items-center">
           <div className="flex items-center gap-4">
-            <img src="/rtblogo.png" alt="Run the Business" className="h-8" />
+            <img src="/rtblogo.png" alt="Run the Business" className="h-12" />
             <h1 className="text-xl font-semibold text-slate-800 font-['Poppins']">Run the Business</h1>
           </div>
           <div className="ml-auto">
