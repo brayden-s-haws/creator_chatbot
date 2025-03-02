@@ -21,3 +21,9 @@ export function formatDate(date: Date): string {
   
   return format(date, "MMM d, yyyy 'at' h:mm a");
 }
+import { type ClassValue, clsx } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
