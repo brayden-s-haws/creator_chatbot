@@ -299,7 +299,7 @@ export default function ChatInterface() {
               type="text"
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Ask a question about product management..."
+              placeholder="Ask a question..."
               className="flex-grow"
             />
             <Button type="submit" disabled={isTyping || !inputMessage.trim()}>
