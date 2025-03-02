@@ -6,6 +6,22 @@
 
 .user-message {
   animation: fadeIn 0.3s ease-out;
+
+/* Floating Action Chip */
+.floating-action-chip {
+  animation: fade-in 0.3s ease-out;
+  transition: transform 0.2s ease-out;
+}
+
+.floating-action-chip:hover {
+  transform: translateY(-2px) translateX(-50%);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px) translateX(-50%); }
+  to { opacity: 1; transform: translateY(0) translateX(-50%); }
+}
+
 }
 
 /* Chat theme styles */
