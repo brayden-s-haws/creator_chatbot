@@ -45,7 +45,8 @@ export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuesti
         {questions.map((question, index) => (
           <button
             key={index}
-            className="w-full text-left p-2 text-sm rounded-md hover:bg-slate-100 transition-colors bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"  {/* Improved styling */}
+            className="w-full text-left p-2 text-sm rounded-md hover:bg-slate-100 transition-colors bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            /* Improved styling */
             onClick={() => handleQuestionClick(question)}
           >
             {question}
