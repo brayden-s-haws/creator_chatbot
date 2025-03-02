@@ -183,7 +183,7 @@ export default function ChatInterface() {
               disabled={chatMutation.isPending}
             />
             <Button 
-              onClick={handleSendMessage}
+              onClick={handleSubmit}
               disabled={chatMutation.isPending || !inputMessage.trim()}
               className="px-4 bg-blue-600 hover:bg-blue-700 shadow-sm"
             >
