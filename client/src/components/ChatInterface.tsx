@@ -142,24 +142,11 @@ export default function ChatInterface() {
 
   return (
     <Card className="flex-grow flex flex-col overflow-hidden shadow-sm border border-slate-200">
-      {/* Chat Header */}
-      <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-        <div></div> {/* Empty div to maintain flex spacing */}
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={handleClearChat}
-          className="text-slate-500 hover:text-primary px-3 py-1"
-        >
-          Clear chat
-        </Button>
-      </div>
-      
       {/* Chat Messages Area */}
       <div 
         ref={chatMessagesRef}
         className="flex-grow p-4 overflow-y-auto space-y-6"
-        style={{ height: "calc(100vh - 280px)" }}
+        style={{ height: "calc(100vh - 240px)" }}
       >
         {messages.map((message) => (
           <ChatMessage 
@@ -194,17 +181,28 @@ export default function ChatInterface() {
       
       {/* Chat Input Area */}
       <div className="p-4 border-t border-slate-200">
-        <form onSubmit={handleSubmit} className="flex gap-2">
-          <Input
-            type="text"
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            placeholder="Ask a question about product management..."
-            className="flex-grow"
-          />
-          <Button type="submit" disabled={isTyping || !inputMessage.trim()}>
-            <span className="mr-1">Send</span>
-            <Send className="h-4 w-4" />
+        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+          <div className="flex gap-2">
+            <Input
+              type="text"
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              placeholder="Ask a question about product management..."
+              className="flex-grow"
+            />
+            <Button type="submit" disabled={isTyping || !inputMessage.trim()}>
+              <span className="mr-1">Send</span>
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
+          <Button 
+            type="button"
+            variant="ghost" 
+            size="sm" 
+            onClick={handleClearChat}
+            className="self-end text-slate-500 hover:text-primary px-3 py-1 mt-1"
+          >
+            Clear chat
           </Button>
         </form>
       </div>
