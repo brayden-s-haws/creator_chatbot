@@ -144,7 +144,7 @@ export default function ChatInterface() {
     <Card className="flex-grow flex flex-col overflow-hidden shadow-sm border border-slate-200">
       {/* Chat Header */}
       <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-        <h2 className="font-semibold text-lg">Chat with Ibrahim</h2>
+        <div></div> {/* Empty div to maintain flex spacing */}
         <Button 
           variant="ghost" 
           size="sm" 
