@@ -45,7 +45,7 @@ export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuesti
         {questions.map((question, index) => (
           <button 
             key={index}
-            className="text-left w-full px-4 py-3 text-sm rounded-md hover:bg-primary/5 text-slate-700 hover:text-primary transition block" {/* Increased padding */}
+            className="text-left w-full px-4 py-3 text-sm rounded-md hover:bg-primary/5 text-slate-700 hover:text-primary transition block"
             onClick={() => handleQuestionClick(question)}
           >
             {question}
