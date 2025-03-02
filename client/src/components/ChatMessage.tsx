@@ -17,7 +17,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
         <div className="bg-primary/10 px-4 py-3 rounded-lg">
           <p>{message.content}</p>
         </div>
-        
+
       </div>
     );
   }

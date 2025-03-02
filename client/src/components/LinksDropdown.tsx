@@ -7,8 +7,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Link, Newspaper, Twitter, Linkedin } from "lucide-react"; // Added necessary imports
-import Button from "@/components/ui/button"; // Assumed import
+import { Link, Newspaper, Twitter, Linkedin } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 
 export default function LinksDropdown() {
