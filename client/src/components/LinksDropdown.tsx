@@ -49,3 +49,46 @@ export default function LinksDropdown() {
     </DropdownMenu>
   );
 }
+import React, { useState } from "react";
+import { Menu, ChevronDown } from "lucide-react";
+
+const links = [
+  { name: "Newsletter", url: "https://runthebusiness.substack.com" },
+  { name: "Twitter", url: "https://twitter.com/ibrahimcesar" },
+  { name: "LinkedIn", url: "https://linkedin.com/in/ibrahimbashir" }
+];
+
+export default function LinksDropdown() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center space-x-1 text-slate-600 hover:text-slate-900"
+      >
+        <span>Links</span>
+        <ChevronDown className="h-4 w-4" />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+          <div className="py-1">
+            {links.map((link, index) => (
+              <a
+                key={index}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
+                onClick={() => setIsOpen(false)}
+              >
+                {link.name}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

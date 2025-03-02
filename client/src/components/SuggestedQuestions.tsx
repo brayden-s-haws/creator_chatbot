@@ -55,3 +55,42 @@ export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuesti
     </Card>
   );
 }
+import React from "react";
+import { useQueryClient } from "@tanstack/react-query";
+
+const questions = [
+  "How do I get my first 1000 customers?",
+  "What are the best strategies for B2B pricing?",
+  "How can I improve customer retention?",
+  "Tell me how to be a great PM",
+  "What's the difference between sales and marketing?"
+];
+
+export default function SuggestedQuestions() {
+  const queryClient = useQueryClient();
+
+  const handleQuestionClick = (question: string) => {
+    // Trigger chat with this question
+    const event = new CustomEvent("suggested-question", {
+      detail: { question }
+    });
+    window.dispatchEvent(event);
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow p-4">
+      <h2 className="font-medium text-slate-800 mb-3">Suggested Questions</h2>
+      <div className="space-y-2">
+        {questions.map((question, index) => (
+          <button
+            key={index}
+            onClick={() => handleQuestionClick(question)}
+            className="w-full text-left p-3 rounded-xl bg-orange-50 hover:bg-orange-100 text-slate-700 transition-colors text-sm"
+          >
+            {question}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
