@@ -14,8 +14,8 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   if (isUser) {
     return (
       <div className="flex justify-end max-w-3xl ml-auto animate-in fade-in slide-in-from-bottom-5 duration-300">
-        <div className="bg-[#ee7835] text-white px-6 py-4 rounded-full shadow-sm">
-          <p className="font-medium text-lg">{message.content}</p>
+        <div className="bg-[#ee7835] text-white px-4 py-2 rounded-full shadow-sm">
+          <p className="font-medium text-base">{message.content}</p>
         </div>
       </div>
     );
