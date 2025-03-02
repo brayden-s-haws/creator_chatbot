@@ -187,10 +187,10 @@ export default function ChatInterface() {
       </div>
 
       {/* Chat Input Area */}
-      <div className="p-4 border-t border-slate-200">
+      <div className="py-2 px-4 border-t border-slate-200">
         <form onSubmit={handleSubmit} className="flex flex-col gap-2">
           {messages.length > 1 && (
-            <div className="flex justify-end items-center gap-2 mb-2"> {/* Added container for buttons */}
+            <div className="flex justify-end items-center gap-2 mb-1"> {/* Added container for buttons */}
               <Button 
                 type="button"
                 variant="ghost" 
