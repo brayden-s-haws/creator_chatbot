@@ -1,9 +1,6 @@
-import { useState } from "react";
-import { Card } from "@/components/ui/card";
 
-type SuggestedQuestionsProps = {
-  onSelectQuestion?: (question: string) => void;
-};
+import { useState } from "react";
+import { Card } from "./ui/card";
 
 const SUGGESTED_QUESTIONS = [
   "How do I build a GTM strategy for a new product?",
@@ -20,6 +17,10 @@ const SUGGESTED_QUESTIONS = [
   "How do I validate product ideas before building them?",
   "What is a good North Star metric for SaaS products?"
 ];
+
+type SuggestedQuestionsProps = {
+  onSelectQuestion?: (question: string) => void;
+};
 
 export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuestionsProps) {
   const [questions] = useState(SUGGESTED_QUESTIONS);
@@ -45,10 +46,15 @@ export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuesti
         {questions.map((question, index) => (
           <button 
             key={index}
-            className="text-left w-full px-3 py-2 text-sm rounded-md hover:bg-primary/5 text-slate-700 hover:text-primary transition block"
+            className="flex items-center w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-full hover:bg-slate-100 text-slate-700 hover:text-primary transition"
             onClick={() => handleQuestionClick(question)}
           >
-            {question}
+            <span className="text-slate-400 mr-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+              </svg>
+            </span>
+            <span className="text-left">{question}</span>
           </button>
         ))}
       </div>
