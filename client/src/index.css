@@ -27,17 +27,3 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
-
-/* Chat container styles */
-.chat-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-@media (min-width: 768px) {
-  .sidebar-container {
-    max-height: calc(100vh - 140px);
-    overflow-y: auto;
-  }
-}

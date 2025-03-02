@@ -60,13 +60,22 @@ export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuesti
       
       {/* New section for RTB image */}
       <Card className="p-6 flex flex-col items-center">
+        <div className="text-center mt-2 text-sm text-slate-500">
+          <p> </p>
+        </div>
         <img 
           src="/rtbbig.png" 
           alt="Run The Business" 
           className="max-w-full h-auto"
         />
         <div className="text-center mt-2 text-sm text-slate-500">
+          <p className="text-sm text-slate-500"></p>
+          <p> </p>
+          <p></p>
+        </div>
+        <div className="text-center mt-2 text-sm text-slate-500">
           <p className="text-sm text-slate-500">Powered by <a href="https://runthebusiness.substack.com" target="_blank" rel="noopener noreferrer" className="text-blue-600">Run the Business</a></p>
+          <p></p>
           <p></p>
         </div>
       </Card>
