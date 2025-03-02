@@ -20,7 +20,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
         <div className="flex-shrink-0">
           <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-[#e87941] shadow-sm">
             <img 
-              src="/user_icon.png" 
+              src="/user_icon.svg" 
               alt="User" 
               className="w-full h-full object-cover"
             />
