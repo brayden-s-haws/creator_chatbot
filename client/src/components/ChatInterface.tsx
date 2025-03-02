@@ -187,10 +187,10 @@ export default function ChatInterface() {
       </div>
 
       {/* Chat Input Area */}
-      <div className="py-1 px-4 border-t border-slate-200">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-1">
+      <div className="p-4 border-t border-slate-200">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
           {messages.length > 1 && (
-            <div className="flex justify-end items-center gap-2 mb-0.5"> {/* Added container for buttons */}
+            <div className="flex justify-end items-center gap-2 mb-2"> {/* Added container for buttons */}
               <Button 
                 type="button"
                 variant="ghost" 
@@ -269,10 +269,10 @@ export default function ChatInterface() {
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               placeholder="Ask a question about product management..."
-              className="flex-grow h-8 text-sm"
+              className="flex-grow"
             />
-            <Button type="submit" size="sm" className="h-8" disabled={isTyping || !inputMessage.trim()}>
-              <Send className="h-3.5 w-3.5" />
+            <Button type="submit" disabled={isTyping || !inputMessage.trim()}>
+              <Send className="h-4 w-4" />
             </Button>
           </div>
         </form>
