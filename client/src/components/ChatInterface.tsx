@@ -158,7 +158,7 @@ export default function ChatInterface() {
       {/* Chat Messages Area */}
       <div 
         ref={chatMessagesRef}
-        className="flex-grow p-6 overflow-y-auto space-y-8" {/* Increased padding and spacing */}
+        className="flex-grow p-6 overflow-y-auto space-y-8"
         style={{ height: "calc(100vh - 280px)" }}
       >
         {messages.map((message) => (
