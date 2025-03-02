@@ -193,9 +193,9 @@ export default function ChatMessage({ message }: ChatMessageProps) {
             </div>
           )}
 
-          {/* Action buttons for assistant messages only - icon only at bottom right */}
+          {/* Action buttons for assistant messages only - icon only at bottom right of message content */}
           {!isUser && (
-            <div className="absolute bottom-2 right-2 flex gap-1.5">
+            <div className="absolute bottom-0 right-0 flex gap-1.5 m-2 bg-white bg-opacity-70 rounded-full">
               <button 
                 onClick={() => {
                   const chatContent = message.content;
