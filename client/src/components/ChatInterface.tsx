@@ -1,213 +1,165 @@
 import { useState, useRef, useEffect } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import axios from "axios";
+import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import ChatMessage from "./ChatMessage";
-import { MessageType } from "@shared/schema";
-import { Send } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { PaperPlaneIcon, Loader2 } from "lucide-react";
+import { format } from 'date-fns';
 
 export default function ChatInterface() {
-  const [messages, setMessages] = useState<MessageType[]>([
-    {
-      id: "welcome-message",
-      role: "assistant",
-      content: "Hi there! I'm Ibrahim Bashir, experienced product leader and author of Run the Business. What product or business questions can I help you with today?",
-      createdAt: new Date().toISOString(),
-      sources: [],
-    },
-  ]);
-  
-  const [inputMessage, setInputMessage] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+  const [message, setMessage] = useState("");
+  const [chatHistory, setChatHistory] = useState<Array<{ role: string; content: string; timestamp?: Date }>>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const chatMessagesRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
 
+  // Scroll to bottom of chat
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isTyping]);
+  }, [chatHistory]);
 
-  // Listen for suggested question events
-  useEffect(() => {
-    const handleSuggestedQuestion = (event: CustomEvent) => {
-      const question = event.detail;
-      if (question) {
-        // Add user message to the chat
-        const userMessage: MessageType = {
-          id: `user-${Date.now()}`,
-          role: "user",
-          content: question,
-          createdAt: new Date().toISOString(),
-          sources: [],
-        };
-        
-        setMessages((prev) => [...prev, userMessage]);
-        setIsTyping(true);
-        
-        // Send the message to the API
-        chatMutation.mutate(question);
-      }
-    };
-
-    window.addEventListener('suggested-question', handleSuggestedQuestion as EventListener);
-    
-    return () => {
-      window.removeEventListener('suggested-question', handleSuggestedQuestion as EventListener);
-    };
-  }, []);
-
-  const chatMutation = useMutation({
-    mutationFn: async (message: string) => {
-      try {
-        // Use the updated apiRequest function from queryClient
-        const response = await fetch("/api/chat", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ message }),
-          credentials: "include",
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(errorText || `Error ${response.status}: ${response.statusText}`);
-        }
-        
-        // Parse JSON manually
-        const data = await response.json();
-        return data as MessageType;
-      } catch (error: any) {
-        console.error("Error in chat mutation:", error);
-        throw error;
+  // Get initial chat message
+  const { data: initialMessage, isLoading: initialLoading } = useQuery({
+    queryKey: ["initialMessage"],
+    queryFn: async () => {
+      const response = await axios.get("/api/chat/initial");
+      return response.data;
+    },
+    onSuccess: (data) => {
+      if (data && data.content && chatHistory.length === 0) {
+        setChatHistory([{ role: "assistant", content: data.content, timestamp: new Date() }]);
       }
     },
-    onSuccess: (data: MessageType) => {
-      setMessages((prev) => [...prev, data]);
-      setIsTyping(false);
-      queryClient.invalidateQueries({ queryKey: ["/api/system-status"] });
-    },
-    onError: (error: any) => {
-      setIsTyping(false);
-      console.error("Chat mutation error:", error);
-      toast({
-        title: "Error",
-        description: `Failed to send message: ${error.message || "Unknown error"}`,
-        variant: "destructive",
+  });
+
+  // Send message mutation
+  const { mutate: sendMessage, isPending: isSending } = useMutation({
+    mutationFn: async (newMessage: string) => {
+      const response = await axios.post("/api/chat", {
+        message: newMessage,
+        history: chatHistory,
       });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      if (data && data.content) {
+        setChatHistory((prev) => [...prev, { role: "assistant", content: data.content, timestamp: new Date() }]);
+      }
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!inputMessage.trim()) return;
-    
-    // Add user message to the chat
-    const userMessage: MessageType = {
-      id: `user-${Date.now()}`,
-      role: "user",
-      content: inputMessage,
-      createdAt: new Date().toISOString(),
-      sources: [],
-    };
-    
-    setMessages((prev) => [...prev, userMessage]);
-    setInputMessage("");
-    setIsTyping(true);
-    
-    // Send the message to the API
-    chatMutation.mutate(inputMessage);
+    if (!message.trim()) return;
+
+    const userMessage = { role: "user", content: message, timestamp: new Date() };
+    setChatHistory((prev) => [...prev, userMessage]);
+    sendMessage(message);
+    setMessage("");
   };
 
-  const handleClearChat = () => {
-    setMessages([
-      {
-        id: "welcome-message",
-        role: "assistant",
-        content: "What other product management or business strategy topics would you like to discuss?",
-        createdAt: new Date().toISOString(),
-        sources: [],
-      },
-    ]);
+  // Group messages by date for timestamps
+  const getMessageGroups = () => {
+    const result: { date: string; messages: typeof chatHistory }[] = [];
+    let currentDate = '';
+    let currentGroup: typeof chatHistory = [];
+
+    chatHistory.forEach((message) => {
+      if (!message.timestamp) return;
+
+      const messageDate = format(message.timestamp, 'MMM d, yyyy');
+
+      if (messageDate !== currentDate) {
+        if (currentGroup.length > 0) {
+          result.push({ date: currentDate, messages: currentGroup });
+        }
+        currentDate = messageDate;
+        currentGroup = [message];
+      } else {
+        currentGroup.push(message);
+      }
+    });
+
+    if (currentGroup.length > 0) {
+      result.push({ date: currentDate, messages: currentGroup });
+    }
+
+    return result;
   };
+
+  const messageGroups = getMessageGroups();
 
   return (
-    <Card className="flex-grow flex flex-col overflow-hidden shadow-sm border border-slate-200">
-      {/* Chat Header */}
-      <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-        <h2 className="font-semibold text-lg">Chat with Ibrahim</h2>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={handleClearChat}
-          className="text-slate-500 hover:text-primary px-3 py-1"
-        >
-          Clear chat
-        </Button>
-      </div>
-      
-      {/* Chat Messages Area */}
-      <div 
-        ref={chatMessagesRef}
-        className="flex-grow p-4 overflow-y-auto space-y-6"
-        style={{ height: "calc(100vh - 280px)" }}
-      >
-        {messages.map((message) => (
-          <ChatMessage 
-            key={message.id} 
-            message={message} 
-          />
-        ))}
-        
-        {/* Typing Indicator */}
-        {isTyping && (
-          <div className="flex gap-3 max-w-3xl">
-            <div className="flex-shrink-0">
-              <div className="w-8 h-8 rounded-full overflow-hidden">
-                <img 
-                  src="/headshot.png" 
-                  alt="Ibrahim Bashir" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-            <div className="bg-slate-100 px-4 py-3 rounded-lg flex items-center">
-              <div className="typing-indicator">
-                <span className="mx-0.5 inline-block w-2 h-2 bg-slate-400 rounded-full animate-pulse"></span>
-                <span className="mx-0.5 inline-block w-2 h-2 bg-slate-400 rounded-full animate-pulse delay-150"></span>
-                <span className="mx-0.5 inline-block w-2 h-2 bg-slate-400 rounded-full animate-pulse delay-300"></span>
-              </div>
-            </div>
+    <div className="flex flex-col h-[calc(100vh-13rem)] md:h-[calc(100vh-12rem)] bg-white rounded-lg shadow overflow-hidden">
+      {/* Chat messages area */}
+      <div className="flex-grow overflow-y-auto p-4 chat-container">
+        {initialLoading && (
+          <div className="flex justify-center items-center h-full">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
           </div>
         )}
+
+        {messageGroups.map((group, groupIndex) => (
+          <div key={groupIndex}>
+            <div className="timestamp">{group.date}</div>
+            {group.messages.map((chat, index) => (
+              <div
+                key={`${groupIndex}-${index}`}
+                className={`${
+                  chat.role === "user" ? "flex justify-end" : "flex justify-start"
+                }`}
+              >
+                <div
+                  className={`chat-message ${
+                    chat.role === "user"
+                      ? "user-message"
+                      : "assistant-message"
+                  }`}
+                >
+                  <ReactMarkdown className="prose prose-sm max-w-none message-content">
+                    {chat.content}
+                  </ReactMarkdown>
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
         <div ref={messagesEndRef} />
       </div>
-      
-      {/* Chat Input Area */}
-      <div className="p-4 border-t border-slate-200">
+
+      {/* Message input area */}
+      <div className="border-t border-gray-200 p-4">
         <form onSubmit={handleSubmit} className="flex gap-2">
-          <Input
-            type="text"
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            placeholder="Ask a question about product management..."
-            className="flex-grow"
+          <Textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Type your message here..."
+            className="flex-grow resize-none rounded-lg"
+            rows={1}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmit(e);
+              }
+            }}
           />
-          <Button type="submit" disabled={isTyping || !inputMessage.trim()}>
-            <span className="mr-1">Send</span>
-            <Send className="h-4 w-4" />
+          <Button 
+            type="submit" 
+            disabled={isSending || !message.trim()}
+            className="h-full rounded-full"
+            style={{ backgroundColor: "#f97316" }}
+          >
+            {isSending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <PaperPlaneIcon className="h-4 w-4" />
+            )}
           </Button>
         </form>
       </div>
-    </Card>
+    </div>
   );
 }

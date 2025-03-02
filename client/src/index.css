@@ -11,3 +11,82 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+/* Custom styles for chat bubbles and improved typography */
+.chat-message {
+  max-width: 80%;
+  margin-bottom: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 1.25rem;
+  line-height: 1.5;
+}
+
+.user-message {
+  background-color: #f97316;
+  color: white;
+  border-radius: 1.25rem;
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.assistant-message {
+  background-color: #e9e9e9;
+  color: #333;
+  border-radius: 1.25rem;
+  margin-right: auto;
+  margin-left: 0;
+}
+
+.timestamp {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-align: center;
+  margin: 0.75rem 0;
+}
+
+.chat-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.message-content {
+  white-space: pre-wrap;
+}
+
+.message-content a {
+  color: #0066cc;
+  text-decoration: underline;
+}
+
+.message-content ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+}
+
+.message-content ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+}
+
+.suggested-question {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.suggested-question:hover {
+  background-color: #f3f4f6;
+}
+
+.blockquote {
+  border-left: 4px solid #f97316;
+  padding-left: 1rem;
+  font-style: italic;
+  margin: 1rem 0;
+}
