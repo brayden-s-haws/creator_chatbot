@@ -24,31 +24,19 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow flex flex-col md:flex-row container mx-auto px-4 py-6 gap-8 max-w-screen-xl min-h-[calc(100vh-80px)]">
+      <main className="flex-grow flex flex-col md:flex-row container mx-auto px-4 py-6 gap-8 max-w-screen-xl">
         {/* Left Column (Sidebar) - Mobile: Full Width, Desktop: 1/3 Width */}
-        <div className="w-full md:w-1/3 space-y-6 flex flex-col">
-          <div className="flex-1 space-y-6">
+        <div className="w-full md:w-1/3 flex flex-col">
+          <div className="flex-grow flex flex-col gap-6">
             <ProfileCard />
             <SuggestedQuestions />
-
-            {/* CSV Uploader Component - Hidden */}
-            {/* <div className="bg-white rounded-lg shadow">
-              <CsvUploader />
-            </div> */}
           </div>
         </div>
 
         {/* Right Column (Chat) - Mobile: Full Width, Desktop: 2/3 Width */}
         <div className="w-full md:w-2/3 flex flex-col">
-          <div className="flex-1">
+          <div className="flex-grow">
             <ChatInterface />
-          </div>
-
-          {/* Powered By Section */}
-          <div className="mt-3 flex justify-center">
-            <p className="text-sm text-slate-500">
-
-            </p>
           </div>
         </div>
       </main>
