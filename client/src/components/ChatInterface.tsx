@@ -177,7 +177,7 @@ export default function ChatInterface() {
             <Input
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              onKeyDown={handleKeyDown}
+              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSubmit(e)}
               placeholder="Ask me anything about product or business..."
               className="flex-grow shadow-sm focus-visible:ring-blue-500"
               disabled={chatMutation.isPending}
