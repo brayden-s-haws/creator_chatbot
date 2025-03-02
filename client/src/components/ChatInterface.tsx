@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 import ChatMessage from "./ChatMessage";
 import { MessageType } from "@shared/schema";
 import { Send } from "lucide-react";
 
 export default function ChatInterface() {
+  const { toast } = useToast();
   const [messages, setMessages] = useState<MessageType[]>([
     {
       id: "welcome-message",
@@ -24,7 +26,6 @@ export default function ChatInterface() {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const scrollToBottom = () => {
@@ -141,6 +142,8 @@ export default function ChatInterface() {
   };
 
   return (
+    <>
+    <Toaster />
     <Card className="flex-grow flex flex-col overflow-hidden shadow-sm border border-slate-200">
       {/* Chat Messages Area */}
       <div 
@@ -199,11 +202,19 @@ export default function ChatInterface() {
 
                   navigator.clipboard.writeText(chatContent)
                     .then(() => {
-                      // You could add a toast notification here
-                      console.log('Chat copied to clipboard');
+                      toast({
+                        title: "Copied!",
+                        description: "Chat copied to clipboard",
+                        variant: "success",
+                      });
                     })
                     .catch(err => {
                       console.error('Failed to copy: ', err);
+                      toast({
+                        title: "Error",
+                        description: "Failed to copy chat to clipboard",
+                        variant: "destructive",
+                      });
                     });
                 }}
                 className="text-slate-500 hover:text-primary px-2 py-1 flex items-center justify-center"
@@ -267,5 +278,6 @@ export default function ChatInterface() {
         </form>
       </div>
     </Card>
+    </>
   );
 }
