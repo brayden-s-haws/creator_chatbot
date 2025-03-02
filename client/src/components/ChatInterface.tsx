@@ -195,7 +195,6 @@ export default function ChatInterface() {
               className="flex-grow"
             />
             <Button type="submit" disabled={isTyping || !inputMessage.trim()}>
-              <span className="mr-1">Send</span>
               <Send className="h-4 w-4" />
             </Button>
           </div>
