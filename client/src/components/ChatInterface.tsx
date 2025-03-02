@@ -149,7 +149,7 @@ export default function ChatInterface() {
           variant="ghost" 
           size="sm" 
           onClick={handleClearChat}
-          className="text-slate-500 hover:text-primary px-4 py-2" {/* Increased padding */}
+          className="text-slate-500 hover:text-primary px-4 py-2"
         >
           Clear chat
         </Button>
