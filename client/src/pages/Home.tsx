@@ -26,18 +26,14 @@ export default function Home() {
       {/* Main Content */}
       <main className="flex-grow flex flex-col md:flex-row container mx-auto px-4 py-6 gap-8 max-w-screen-xl">
         {/* Left Column (Sidebar) - Mobile: Full Width, Desktop: 1/3 Width */}
-        <div className="w-full md:w-1/3 flex flex-col">
-          <div className="flex-grow flex flex-col gap-6">
-            <ProfileCard />
-            <SuggestedQuestions />
-          </div>
+        <div className="w-full md:w-1/3 flex flex-col gap-6 md:max-h-[calc(100vh-100px)] md:sticky md:top-[100px]">
+          <ProfileCard />
+          <SuggestedQuestions />
         </div>
 
         {/* Right Column (Chat) - Mobile: Full Width, Desktop: 2/3 Width */}
         <div className="w-full md:w-2/3 flex flex-col">
-          <div className="flex-grow">
-            <ChatInterface />
-          </div>
+          <ChatInterface />
         </div>
       </main>
     </div>

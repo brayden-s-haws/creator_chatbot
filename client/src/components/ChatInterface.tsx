@@ -144,14 +144,11 @@ export default function ChatInterface() {
   return (
     <>
     <Toaster />
-    <Card className="flex flex-col h-full overflow-hidden shadow-sm border border-slate-200">
+    <Card className="flex flex-col h-[calc(100vh-180px)] overflow-hidden shadow-sm border border-slate-200">
       {/* Chat Messages Area */}
       <div 
         ref={chatMessagesRef}
         className="flex-grow p-4 overflow-y-auto space-y-6"
-        style={{ 
-          height: "calc(100vh - 240px)"
-        }}
       >
         {messages.map((message) => (
           <ChatMessage 
