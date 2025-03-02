@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 
 export default function ProfileCard() {
@@ -8,7 +9,8 @@ export default function ProfileCard() {
           <img 
             src="/headshot.png"
             alt="Ibrahim Bashir"
-            className="w-20 h-20 rounded-full object-cover shadow-md" {/* Added shadow */}
+            className="w-20 h-20 rounded-full object-cover shadow-md" 
+            /* Added shadow */
           />
         </div>
         <h3 className="font-semibold text-lg text-gray-800">Ibrahim Bashir</h3> {/*Improved contrast*/}
