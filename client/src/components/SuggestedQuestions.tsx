@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 type SuggestedQuestionsProps = {
   onSelectQuestion?: (question: string) => void;
@@ -24,39 +23,35 @@ const SUGGESTED_QUESTIONS = [
 
 export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuestionsProps) {
   const [questions] = useState(SUGGESTED_QUESTIONS);
-
+  
   const handleQuestionClick = (question: string) => {
     if (typeof window !== 'undefined') {
       // Dispatch a custom event that ChatInterface can listen for
       const event = new CustomEvent('suggested-question', { detail: question });
       window.dispatchEvent(event);
     }
-
+    
     // Also call the callback if provided
     if (onSelectQuestion) {
       onSelectQuestion(question);
     }
   };
-
+  
   return (
-    <Card className="overflow-hidden shadow-md hover:shadow-lg transition-shadow border border-slate-200/60">
-      <CardHeader className="pb-2 bg-gradient-to-r from-slate-50 to-blue-50">
-        <CardTitle className="text-md font-medium text-slate-800">Suggested Topics</CardTitle>
-      </CardHeader>
-      <CardContent className="pt-3 pb-4 bg-white">
-        <div className="space-y-2.5">
-          {questions.map((question, index) => (
-            <Button
-              key={index}
-              variant="outline"
-              className="w-full justify-start text-left h-auto py-2.5 px-3 text-sm font-normal border-slate-200 hover:bg-blue-50 hover:border-blue-200 transition-colors"
-              onClick={() => handleQuestionClick(question)}
-            >
-              {question}
-            </Button>
-          ))}
-        </div>
-      </CardContent>
+    <Card className="p-6">
+      <h3 className="font-semibold text-base mb-4">Suggested Questions</h3>
+      
+      <div className="space-y-2">
+        {questions.map((question, index) => (
+          <button 
+            key={index}
+            className="text-left w-full px-3 py-2 text-sm rounded-md hover:bg-primary/5 text-slate-700 hover:text-primary transition block"
+            onClick={() => handleQuestionClick(question)}
+          >
+            {question}
+          </button>
+        ))}
+      </div>
     </Card>
   );
 }

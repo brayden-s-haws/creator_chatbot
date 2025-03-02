@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -19,7 +19,7 @@ export default function ChatInterface() {
       sources: [],
     },
   ]);
-
+  
   const [inputMessage, setInputMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -48,17 +48,17 @@ export default function ChatInterface() {
           createdAt: new Date().toISOString(),
           sources: [],
         };
-
+        
         setMessages((prev) => [...prev, userMessage]);
         setIsTyping(true);
-
+        
         // Send the message to the API
         chatMutation.mutate(question);
       }
     };
 
     window.addEventListener('suggested-question', handleSuggestedQuestion as EventListener);
-
+    
     return () => {
       window.removeEventListener('suggested-question', handleSuggestedQuestion as EventListener);
     };
@@ -76,12 +76,12 @@ export default function ChatInterface() {
           body: JSON.stringify({ message }),
           credentials: "include",
         });
-
+        
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(errorText || `Error ${response.status}: ${response.statusText}`);
         }
-
+        
         // Parse JSON manually
         const data = await response.json();
         return data as MessageType;
@@ -108,9 +108,9 @@ export default function ChatInterface() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     if (!inputMessage.trim()) return;
-
+    
     // Add user message to the chat
     const userMessage: MessageType = {
       id: `user-${Date.now()}`,
@@ -119,11 +119,11 @@ export default function ChatInterface() {
       createdAt: new Date().toISOString(),
       sources: [],
     };
-
+    
     setMessages((prev) => [...prev, userMessage]);
     setInputMessage("");
     setIsTyping(true);
-
+    
     // Send the message to the API
     chatMutation.mutate(inputMessage);
   };
@@ -141,57 +141,73 @@ export default function ChatInterface() {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="bg-white rounded-lg shadow-md border border-slate-200/80 overflow-hidden flex flex-col">
-        {/* Header */}
-        <div className="p-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-blue-50">
-          <h2 className="text-slate-700 font-medium">Chat with Ibrahim</h2>
-        </div>
-
-        {/* Chat Messages Area */}
-        <div 
-          ref={chatMessagesRef}
-          className="flex-grow overflow-y-auto space-y-5 p-5 h-[550px] md:h-[650px] bg-slate-50/50"
-          style={{ backgroundImage: "radial-gradient(circle at 25px 25px, rgba(240, 249, 255, 0.15) 2%, transparent 0%), radial-gradient(circle at 75px 75px, rgba(240, 249, 255, 0.15) 2%, transparent 0%)", backgroundSize: "100px 100px" }}
+    <Card className="flex-grow flex flex-col overflow-hidden shadow-sm border border-slate-200">
+      {/* Chat Header */}
+      <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <h2 className="font-semibold text-lg">Chat with Ibrahim</h2>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={handleClearChat}
+          className="text-slate-500 hover:text-primary px-3 py-1"
         >
-          {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
-          ))}
-
-          {isTyping && (
-            <div className="flex items-center">
-              <div className="animate-pulse flex space-x-2 ml-12">
-                <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
-                <div className="h-2 w-2 bg-blue-400 rounded-full animation-delay-200"></div>
-                <div className="h-2 w-2 bg-blue-400 rounded-full animation-delay-400"></div>
+          Clear chat
+        </Button>
+      </div>
+      
+      {/* Chat Messages Area */}
+      <div 
+        ref={chatMessagesRef}
+        className="flex-grow p-4 overflow-y-auto space-y-6"
+        style={{ height: "calc(100vh - 280px)" }}
+      >
+        {messages.map((message) => (
+          <ChatMessage 
+            key={message.id} 
+            message={message} 
+          />
+        ))}
+        
+        {/* Typing Indicator */}
+        {isTyping && (
+          <div className="flex gap-3 max-w-3xl">
+            <div className="flex-shrink-0">
+              <div className="w-8 h-8 rounded-full overflow-hidden">
+                <img 
+                  src="/headshot.png" 
+                  alt="Ibrahim Bashir" 
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
-          )}
-
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input Area */}
-        <div className="p-4 border-t border-slate-100 bg-white">
-          <div className="flex space-x-2">
-            <Input
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSubmit(e)}
-              placeholder="Ask me anything about product or business..."
-              className="flex-grow shadow-sm focus-visible:ring-blue-500"
-              disabled={chatMutation.isPending}
-            />
-            <Button 
-              onClick={handleSubmit}
-              disabled={chatMutation.isPending || !inputMessage.trim()}
-              className="px-4 bg-blue-600 hover:bg-blue-700 shadow-sm"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
+            <div className="bg-slate-100 px-4 py-3 rounded-lg flex items-center">
+              <div className="typing-indicator">
+                <span className="mx-0.5 inline-block w-2 h-2 bg-slate-400 rounded-full animate-pulse"></span>
+                <span className="mx-0.5 inline-block w-2 h-2 bg-slate-400 rounded-full animate-pulse delay-150"></span>
+                <span className="mx-0.5 inline-block w-2 h-2 bg-slate-400 rounded-full animate-pulse delay-300"></span>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
+        <div ref={messagesEndRef} />
       </div>
-    </div>
+      
+      {/* Chat Input Area */}
+      <div className="p-4 border-t border-slate-200">
+        <form onSubmit={handleSubmit} className="flex gap-2">
+          <Input
+            type="text"
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            placeholder="Ask a question about product management..."
+            className="flex-grow"
+          />
+          <Button type="submit" disabled={isTyping || !inputMessage.trim()}>
+            <span className="mr-1">Send</span>
+            <Send className="h-4 w-4" />
+          </Button>
+        </form>
+      </div>
+    </Card>
   );
 }
