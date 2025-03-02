@@ -42,15 +42,21 @@ export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuesti
   
   // Get three random questions that aren't currently shown
   const updateVisibleQuestions = () => {
-    // If we have less than 3 questions, just show all of them
-    if (allQuestions.length <= 3) {
-      setVisibleQuestions([...allQuestions]);
-      return;
-    }
+    // First fade out by setting empty array
+    setVisibleQuestions([]);
     
-    // Get 3 random questions from the array
-    const shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
-    setVisibleQuestions(shuffled.slice(0, 3));
+    // Then after a short delay, fade in new questions
+    setTimeout(() => {
+      // If we have less than 3 questions, just show all of them
+      if (allQuestions.length <= 3) {
+        setVisibleQuestions([...allQuestions]);
+        return;
+      }
+      
+      // Get 3 random questions from the array
+      const shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
+      setVisibleQuestions(shuffled.slice(0, 3));
+    }, 300); // Slight delay to allow exit animations to complete
   };
   
   const handleQuestionClick = (question: string) => {
@@ -79,16 +85,16 @@ export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuesti
       </div>
       
       <div className="space-y-2 min-h-[180px]">
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence mode="wait">
           {visibleQuestions.map((question, index) => (
             <motion.button 
               key={question}
               className="flex items-center w-full px-4 py-3 text-xs bg-slate-50 border border-slate-200 rounded-full hover:bg-slate-100 text-slate-700 hover:text-primary transition"
               onClick={() => handleQuestionClick(question)}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
             >
               <span className="text-slate-400 mr-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
