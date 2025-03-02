@@ -8,7 +8,7 @@ channel = "stable-24_05"
 [deployment]
 deploymentTarget = "cloudrun"
 build = ["sh", "-c", "npm run build"]
-run = ["sh", "-c", "node --loader tsx/esm server/index.ts"]
+run = ["sh", "-c", "node --import tsx/esm server/index.ts"]
 
 [workflows]
 runButton = "Project"
