@@ -14,11 +14,11 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   if (isUser) {
     return (
       <div className="flex gap-3 justify-end max-w-3xl ml-auto animate-in fade-in slide-in-from-bottom-5 duration-300">
-        <div className="bg-[#e87941] text-white px-4 py-3 rounded-xl shadow-sm">
+        <div className="bg-[#c27550] text-white px-4 py-3 rounded-xl shadow-sm">
           <p className="font-medium">{message.content}</p>
         </div>
         <div className="flex-shrink-0">
-          <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-[#e87941] shadow-sm">
+          <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-[#c27550] shadow-sm">
             <img 
               src="/user_icon.svg" 
               alt="User" 
