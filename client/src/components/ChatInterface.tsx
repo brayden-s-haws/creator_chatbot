@@ -32,7 +32,8 @@ export default function ChatInterface() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Only auto-scroll when messages are added after initial load
+  // Track user interactions to only auto-scroll after user action
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
   
   useEffect(() => {
@@ -40,8 +41,28 @@ export default function ChatInterface() {
       setInitialLoad(false);
       return;
     }
-    scrollToBottom();
-  }, [messages, isTyping, initialLoad]);
+    
+    // Only scroll if this is not the initial page load or user has interacted
+    if (hasUserInteracted) {
+      scrollToBottom();
+    }
+  }, [messages, isTyping, initialLoad, hasUserInteracted]);
+  
+  // Set user interaction flag when input receives focus or text changes
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      setHasUserInteracted(true);
+    };
+    
+    // Add event listeners to track user interaction with the page
+    window.addEventListener('click', handleUserInteraction);
+    window.addEventListener('touchstart', handleUserInteraction);
+    
+    return () => {
+      window.removeEventListener('click', handleUserInteraction);
+      window.removeEventListener('touchstart', handleUserInteraction);
+    };
+  }, []);
 
   // Listen for suggested question events
   useEffect(() => {
@@ -118,6 +139,9 @@ export default function ChatInterface() {
     e.preventDefault();
 
     if (!inputMessage.trim()) return;
+    
+    // Mark that user has interacted with the chat
+    setHasUserInteracted(true);
 
     // Add user message to the chat
     const userMessage: MessageType = {
