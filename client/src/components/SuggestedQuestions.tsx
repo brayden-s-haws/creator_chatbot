@@ -35,7 +35,7 @@ export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuesti
     // Set up rotation interval
     const interval = setInterval(() => {
       updateVisibleQuestions();
-    }, 10000);
+    }, 12000);
     
     return () => clearInterval(interval);
   }, []);
@@ -79,16 +79,20 @@ export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuesti
       </div>
       
       <div className="space-y-2 min-h-[180px]">
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence mode="sync" initial={false}>
           {visibleQuestions.map((question, index) => (
             <motion.button 
               key={question}
               className="flex items-center w-full px-4 py-3 text-xs bg-slate-50 border border-slate-200 rounded-full hover:bg-slate-100 text-slate-700 hover:text-primary transition"
               onClick={() => handleQuestionClick(question)}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
+              initial={{ opacity: 0, y: 10, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.98 }}
+              transition={{ 
+                duration: 0.4, 
+                delay: index * 0.08,
+                ease: "easeInOut"
+              }}
             >
               <span className="text-slate-400 mr-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
