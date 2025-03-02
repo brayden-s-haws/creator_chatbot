@@ -13,7 +13,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
 
   if (isUser) {
     return (
-      <div className="flex gap-3 justify-end max-w-3xl ml-auto animate-in fade-in slide-in-from-bottom-5 duration-300 mb-6"> {/* Added margin bottom */}
+      <div className="flex gap-3 justify-end max-w-3xl ml-auto animate-in fade-in slide-in-from-bottom-5 duration-300">
         <div className="bg-primary/10 px-4 py-3 rounded-lg">
           <p>{message.content}</p>
         </div>
@@ -36,7 +36,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   // Handle citation click
   const handleCitationClick = useCallback((index: number) => {
     setActiveCitation(activeCitation === index ? null : index);
-
+    
     // Only try to open URLs for sources that exist
     if (message.sources && index < message.sources.length && message.sources[index]?.url) {
       window.open(message.sources[index].url, '_blank', 'noopener,noreferrer');
@@ -56,21 +56,21 @@ export default function ChatMessage({ message }: ChatMessageProps) {
     return content.replace(/\[(\d+)\]/g, (match, citationNumber) => {
       const num = parseInt(citationNumber, 10) - 1; // Convert to 0-based index
       const sourceExists = message.sources && num >= 0 && num < message.sources.length;
-
+      
       // If the citation is invalid (references a non-existent source)
       if (!sourceExists) {
         console.warn(`Invalid citation found: [${citationNumber}] - only ${message.sources?.length || 0} sources available`);
         // Instead of showing invalid citations, we'll remove them completely
         return '';
       }
-
+      
       // For valid citations, create the normal interactive button
       return `<span class="inline-citation" data-citation-index="${num}" data-citation-number="${citationNumber}">${citationNumber}</span>`;
     });
   };
 
   return (
-    <div className="flex gap-3 max-w-3xl animate-in fade-in slide-in-from-bottom-5 duration-300 mb-6"> {/* Added margin bottom */}
+    <div className="flex gap-3 max-w-3xl animate-in fade-in slide-in-from-bottom-5 duration-300">
       <div className="flex-shrink-0">
         <div className="w-8 h-8 rounded-full overflow-hidden">
             <img 
@@ -111,28 +111,28 @@ export default function ChatMessage({ message }: ChatMessageProps) {
                   // Extract citation index from the data attribute
                   const citationIndexAttr = node.properties?.['data-citation-index'];
                   const citationNumberAttr = node.properties?.['data-citation-number'];
-
+                  
                   const citationIndex = typeof citationIndexAttr === 'string' 
                     ? parseInt(citationIndexAttr, 10) 
                     : parseInt(props.children?.toString() || '1', 10) - 1;
-
+                  
                   const citationNumber = typeof citationNumberAttr === 'string'
                     ? citationNumberAttr
                     : props.children?.toString() || '1';
-
+                  
                   // Determine if the source exists - ensure it's within the available sources
                   const sourceExists = message.sources && 
                                       citationIndex >= 0 && 
                                       citationIndex < message.sources.length;
-
+                  
                   // If this is a citation number that exceeds our sources, display it differently
                   const isInvalidCitation = parseInt(citationNumber, 10) > (message.sources?.length || 0);
-
+                  
                   // Log issue with invalid citations for debugging
                   if (isInvalidCitation) {
                     console.warn(`Invalid citation: [${citationNumber}] - only ${message.sources?.length || 0} sources available`);
                   }
-
+                  
                   return (
                     <button 
                       onClick={(e) => {

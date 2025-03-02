@@ -19,7 +19,7 @@ export default function ChatInterface() {
       sources: [],
     },
   ]);
-
+  
   const [inputMessage, setInputMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -48,17 +48,17 @@ export default function ChatInterface() {
           createdAt: new Date().toISOString(),
           sources: [],
         };
-
+        
         setMessages((prev) => [...prev, userMessage]);
         setIsTyping(true);
-
+        
         // Send the message to the API
         chatMutation.mutate(question);
       }
     };
 
     window.addEventListener('suggested-question', handleSuggestedQuestion as EventListener);
-
+    
     return () => {
       window.removeEventListener('suggested-question', handleSuggestedQuestion as EventListener);
     };
@@ -76,12 +76,12 @@ export default function ChatInterface() {
           body: JSON.stringify({ message }),
           credentials: "include",
         });
-
+        
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(errorText || `Error ${response.status}: ${response.statusText}`);
         }
-
+        
         // Parse JSON manually
         const data = await response.json();
         return data as MessageType;
@@ -108,9 +108,9 @@ export default function ChatInterface() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     if (!inputMessage.trim()) return;
-
+    
     // Add user message to the chat
     const userMessage: MessageType = {
       id: `user-${Date.now()}`,
@@ -119,11 +119,11 @@ export default function ChatInterface() {
       createdAt: new Date().toISOString(),
       sources: [],
     };
-
+    
     setMessages((prev) => [...prev, userMessage]);
     setInputMessage("");
     setIsTyping(true);
-
+    
     // Send the message to the API
     chatMutation.mutate(inputMessage);
   };
@@ -143,22 +143,22 @@ export default function ChatInterface() {
   return (
     <Card className="flex-grow flex flex-col overflow-hidden shadow-sm border border-slate-200">
       {/* Chat Header */}
-      <div className="p-6 border-b border-slate-200 flex items-center justify-between bg-slate-50"> {/* Increased padding */}
+      <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
         <h2 className="font-semibold text-lg">Chat with Ibrahim</h2>
         <Button 
           variant="ghost" 
           size="sm" 
           onClick={handleClearChat}
-          className="text-slate-500 hover:text-primary px-4 py-2"
+          className="text-slate-500 hover:text-primary px-3 py-1"
         >
           Clear chat
         </Button>
       </div>
-
+      
       {/* Chat Messages Area */}
       <div 
         ref={chatMessagesRef}
-        className="flex-grow p-6 overflow-y-auto space-y-8"
+        className="flex-grow p-4 overflow-y-auto space-y-6"
         style={{ height: "calc(100vh - 280px)" }}
       >
         {messages.map((message) => (
@@ -167,12 +167,12 @@ export default function ChatInterface() {
             message={message} 
           />
         ))}
-
+        
         {/* Typing Indicator */}
         {isTyping && (
-          <div className="flex gap-4 max-w-3xl mt-4"> {/* Added margin top and increased gap */}
+          <div className="flex gap-3 max-w-3xl">
             <div className="flex-shrink-0">
-              <div className="w-10 h-10 rounded-full overflow-hidden"> {/* Increased size */}
+              <div className="w-8 h-8 rounded-full overflow-hidden">
                 <img 
                   src="/headshot.png" 
                   alt="Ibrahim Bashir" 
@@ -180,21 +180,21 @@ export default function ChatInterface() {
                 />
               </div>
             </div>
-            <div className="bg-slate-100 px-6 py-4 rounded-lg flex items-center"> {/* Increased padding */}
+            <div className="bg-slate-100 px-4 py-3 rounded-lg flex items-center">
               <div className="typing-indicator">
-                <span className="mx-1 inline-block w-2 h-2 bg-slate-400 rounded-full animate-pulse"></span>
-                <span className="mx-1 inline-block w-2 h-2 bg-slate-400 rounded-full animate-pulse delay-150"></span>
-                <span className="mx-1 inline-block w-2 h-2 bg-slate-400 rounded-full animate-pulse delay-300"></span>
+                <span className="mx-0.5 inline-block w-2 h-2 bg-slate-400 rounded-full animate-pulse"></span>
+                <span className="mx-0.5 inline-block w-2 h-2 bg-slate-400 rounded-full animate-pulse delay-150"></span>
+                <span className="mx-0.5 inline-block w-2 h-2 bg-slate-400 rounded-full animate-pulse delay-300"></span>
               </div>
             </div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
-
+      
       {/* Chat Input Area */}
-      <div className="p-6 border-t border-slate-200"> {/* Increased padding */}
-        <form onSubmit={handleSubmit} className="flex gap-4"> {/* Increased gap */}
+      <div className="p-4 border-t border-slate-200">
+        <form onSubmit={handleSubmit} className="flex gap-2">
           <Input
             type="text"
             value={inputMessage}
@@ -203,8 +203,8 @@ export default function ChatInterface() {
             className="flex-grow"
           />
           <Button type="submit" disabled={isTyping || !inputMessage.trim()}>
-            <span className="mr-2">Send</span> {/* Increased margin */}
-            <Send className="h-5 w-5" /> {/* Increased size */}
+            <span className="mr-1">Send</span>
+            <Send className="h-4 w-4" />
           </Button>
         </form>
       </div>
