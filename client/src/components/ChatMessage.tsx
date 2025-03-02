@@ -61,7 +61,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   };
 
   return (
-    <div className="flex gap-3 max-w-3xl animate-in fade-in slide-in-from-bottom-5 duration-300 relative">
+    <div className="flex gap-3 max-w-3xl animate-in fade-in slide-in-from-bottom-5 duration-300">
       <div className="flex-shrink-0">
         <div className="w-8 h-8 rounded-full overflow-hidden">
             <img 
@@ -190,67 +190,6 @@ export default function ChatMessage({ message }: ChatMessageProps) {
               <p className="text-slate-600">
                 This response is based on general knowledge about product management and business strategy.
               </p>
-            </div>
-          )}
-
-          {/* Action buttons for assistant messages only - icon only at bottom right of message content */}
-          {!isUser && (
-            <div className="absolute bottom-0 right-0 flex gap-1.5 m-2 bg-white bg-opacity-70 rounded-full">
-              <button 
-                onClick={() => {
-                  const chatContent = message.content;
-                  navigator.clipboard.writeText(chatContent)
-                    .then(() => {
-                      console.log('Message copied to clipboard');
-                    })
-                    .catch(err => {
-                      console.error('Failed to copy: ', err);
-                    });
-                }}
-                className="text-slate-400 hover:text-primary w-7 h-7 flex items-center justify-center rounded-full hover:bg-slate-100"
-                title="Copy message to clipboard"
-              >
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  width="16" 
-                  height="16" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                  className="h-4 w-4"
-                >
-                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                </svg>
-              </button>
-              <button 
-                onClick={() => {
-                  const clearEvent = new CustomEvent('clearChat');
-                  document.dispatchEvent(clearEvent);
-                }}
-                className="text-slate-400 hover:text-primary w-7 h-7 flex items-center justify-center rounded-full hover:bg-slate-100"
-                title="Clear chat"
-              >
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  width="16" 
-                  height="16" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                  className="h-4 w-4"
-                >
-                  <path d="M3 6h18"></path>
-                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                </svg>
-              </button>
             </div>
           )}
         </div>
