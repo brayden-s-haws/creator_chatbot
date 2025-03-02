@@ -220,8 +220,53 @@ export default function ChatInterface() {
       {/* Chat Input Area */}
       <div className="p-4 border-t border-slate-200">
         <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-          <div className="flex justify-end items-center gap-2 mb-2">
-            {messages.length > 1 && (
+          {messages.length > 1 && (
+            <div className="flex justify-end items-center gap-2 mb-2"> {/* Added container for buttons */}
+              <Button 
+                type="button"
+                variant="ghost" 
+                size="sm" 
+                onClick={() => {
+                  const chatContent = messages.map(m => 
+                    `${m.role === 'assistant' ? 'Ibrahim Bot' : 'You'}: ${m.content}`
+                  ).join('\n\n');
+
+                  navigator.clipboard.writeText(chatContent)
+                    .then(() => {
+                      toast({
+                        title: "Copied!",
+                        description: "Chat copied to clipboard",
+                        variant: "success",
+                      });
+                    })
+                    .catch(err => {
+                      console.error('Failed to copy: ', err);
+                      toast({
+                        title: "Error",
+                        description: "Failed to copy chat to clipboard",
+                        variant: "destructive",
+                      });
+                    });
+                }}
+                className="text-slate-500 hover:text-primary px-2 py-1 flex items-center justify-center"
+                title="Copy chat to clipboard"
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                  className="h-4 w-4"
+                >
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                </svg>
+              </Button>
               <Button 
                 type="button"
                 variant="ghost" 
@@ -247,8 +292,8 @@ export default function ChatInterface() {
                   <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
                 </svg>
               </Button>
-            )}
-          </div>
+            </div>
+          )}
           <div className="flex gap-2">
             <Input
               type="text"
