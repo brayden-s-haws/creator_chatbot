@@ -32,9 +32,16 @@ export default function ChatInterface() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Only auto-scroll when messages are added after initial load
+  const [initialLoad, setInitialLoad] = useState(true);
+  
   useEffect(() => {
+    if (initialLoad) {
+      setInitialLoad(false);
+      return;
+    }
     scrollToBottom();
-  }, [messages, isTyping]);
+  }, [messages, isTyping, initialLoad]);
 
   // Listen for suggested question events
   useEffect(() => {
