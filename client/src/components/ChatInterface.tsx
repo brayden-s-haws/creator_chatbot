@@ -146,7 +146,11 @@ export default function ChatInterface() {
       <div 
         ref={chatMessagesRef}
         className="flex-grow p-4 overflow-y-auto space-y-6"
-        style={{ height: "calc(100vh - 240px)" }}
+        style={{ 
+          minHeight: "300px", 
+          maxHeight: "calc(100vh - 240px)",
+          height: "auto" 
+        }}
       >
         {messages.map((message) => (
           <ChatMessage 
