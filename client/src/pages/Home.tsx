@@ -11,8 +11,8 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 py-4">
-        <div className="container mx-auto px-4 flex justify-between items-center">
+      <header className="bg-white border-b border-slate-200 py-5">
+        <div className="container mx-auto px-6 flex justify-between items-center">
           <img src="/rtblogo.png" alt="Run the Business" className="h-8" />
           <h1 className="text-xl font-semibold text-slate-800">Run the Business</h1>
           <LinksDropdown />
@@ -20,9 +20,9 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow flex flex-col md:flex-row container mx-auto px-4 py-6 gap-8 max-w-screen-xl">
+      <main className="flex-grow flex flex-col md:flex-row container mx-auto px-6 py-8 gap-10 max-w-screen-xl">
         {/* Left Column (Sidebar) - Mobile: Full Width, Desktop: 1/4 Width */}
-        <div className="w-full md:w-1/4 space-y-6">
+        <div className="w-full md:w-1/4 space-y-8">
           <ProfileCard />
           <SuggestedQuestions />
 
@@ -37,7 +37,7 @@ export default function Home() {
           <ChatInterface />
 
           {/* Powered By Section */}
-          <div className="mt-3 flex justify-center">
+          <div className="mt-5 flex justify-center">
             <p className="text-sm text-slate-500">Powered by <a href="https://runthebusiness.substack.com" target="_blank" rel="noopener noreferrer" className="text-blue-600">Run the Business</a></p>
           </div>
         </div>

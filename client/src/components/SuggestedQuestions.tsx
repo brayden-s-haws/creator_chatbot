@@ -23,29 +23,29 @@ const SUGGESTED_QUESTIONS = [
 
 export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuestionsProps) {
   const [questions] = useState(SUGGESTED_QUESTIONS);
-  
+
   const handleQuestionClick = (question: string) => {
     if (typeof window !== 'undefined') {
       // Dispatch a custom event that ChatInterface can listen for
       const event = new CustomEvent('suggested-question', { detail: question });
       window.dispatchEvent(event);
     }
-    
+
     // Also call the callback if provided
     if (onSelectQuestion) {
       onSelectQuestion(question);
     }
   };
-  
+
   return (
-    <Card className="p-6">
-      <h3 className="font-semibold text-base mb-4">Suggested Questions</h3>
-      
-      <div className="space-y-2">
+    <Card className="p-8"> {/* Increased padding here */}
+      <h3 className="font-semibold text-base mb-6"> {/* Increased bottom margin */}Suggested Questions</h3>
+
+      <div className="space-y-4"> {/* Increased spacing between buttons */}
         {questions.map((question, index) => (
           <button 
             key={index}
-            className="text-left w-full px-3 py-2 text-sm rounded-md hover:bg-primary/5 text-slate-700 hover:text-primary transition block"
+            className="text-left w-full px-4 py-3 text-sm rounded-md hover:bg-primary/5 text-slate-700 hover:text-primary transition block" {/* Increased padding */}
             onClick={() => handleQuestionClick(question)}
           >
             {question}
