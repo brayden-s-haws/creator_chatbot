@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card } from "./ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -24,40 +24,31 @@ type SuggestedQuestionsProps = {
 };
 
 export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuestionsProps) {
-  const [visibleQuestions, setVisibleQuestions] = useState<string[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [allQuestions] = useState(SUGGESTED_QUESTIONS);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [isAutoScrolling, setIsAutoScrolling] = useState(true);
+  
+  // Get 4 questions based on current index
+  const visibleQuestions = () => {
+    const questions = [];
+    for (let i = 0; i < 4; i++) {
+      const idx = (currentIndex + i) % allQuestions.length;
+      questions.push(allQuestions[idx]);
+    }
+    return questions;
+  };
   
   // Rotate questions every 10 seconds
   useEffect(() => {
-    // Initial set of questions
-    updateVisibleQuestions();
+    if (!isAutoScrolling) return;
     
-    // Set up rotation interval
     const interval = setInterval(() => {
-      updateVisibleQuestions();
-    }, 10000);
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % allQuestions.length);
+    }, 5000);
     
     return () => clearInterval(interval);
-  }, []);
-  
-  // Get three random questions that aren't currently shown
-  const updateVisibleQuestions = () => {
-    // First fade out by setting empty array
-    setVisibleQuestions([]);
-    
-    // Then after a short delay, fade in new questions
-    setTimeout(() => {
-      // If we have less than 3 questions, just show all of them
-      if (allQuestions.length <= 3) {
-        setVisibleQuestions([...allQuestions]);
-        return;
-      }
-      
-      // Get 3 random questions from the array
-      const shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
-      setVisibleQuestions(shuffled.slice(0, 3));
-    }, 300); // Slight delay to allow exit animations to complete
-  };
+  }, [allQuestions.length, isAutoScrolling]);
   
   const handleQuestionClick = (question: string) => {
     if (typeof window !== 'undefined') {
@@ -72,39 +63,53 @@ export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuesti
     }
   };
   
+  const handleRefresh = () => {
+    // Shuffle to a random position
+    const randomIndex = Math.floor(Math.random() * allQuestions.length);
+    setCurrentIndex(randomIndex);
+  };
+  
+  // Pause auto-scrolling when hovering
+  const handleMouseEnter = () => setIsAutoScrolling(false);
+  const handleMouseLeave = () => setIsAutoScrolling(true);
+  
   return (
     <Card className="p-6">
       <div className="flex justify-between items-center mb-4">
         <h3 className="font-semibold text-base">Suggested Questions</h3>
         <button 
-          onClick={updateVisibleQuestions}
+          onClick={handleRefresh}
           className="text-xs text-primary hover:text-primary/80 transition"
         >
           Refresh
         </button>
       </div>
       
-      <div className="space-y-2 min-h-[180px]">
-        <AnimatePresence mode="wait">
-          {visibleQuestions.map((question, index) => (
+      <div 
+        className="space-y-2 min-h-[240px] overflow-hidden" 
+        ref={carouselRef}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <div className="transition-all duration-500 ease-in-out" style={{ transform: `translateY(0)` }}>
+          {visibleQuestions().map((question, index) => (
             <motion.button 
-              key={question}
-              className="flex items-center w-full px-4 py-3 text-xs bg-slate-50 border border-slate-200 rounded-full hover:bg-slate-100 text-slate-700 hover:text-primary transition"
+              key={`${question}-${currentIndex + index}`}
+              className="flex items-center w-full px-4 py-3 mb-2 text-xs bg-slate-50 border border-slate-200 rounded-full hover:bg-slate-100 text-slate-700 hover:text-primary transition"
               onClick={() => handleQuestionClick(question)}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
             >
               <span className="text-slate-400 mr-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                 </svg>
               </span>
-              <span className="text-left">{question}</span>
+              <span className="text-left truncate">{question}</span>
             </motion.button>
           ))}
-        </AnimatePresence>
+        </div>
       </div>
     </Card>
   );
