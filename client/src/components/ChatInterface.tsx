@@ -198,30 +198,7 @@ export default function ChatInterface() {
               <Send className="h-4 w-4" />
             </Button>
           </div>
-          <div className="flex justify-between items-center mt-1">
-            <Button 
-              type="button"
-              variant="ghost" 
-              size="sm" 
-              onClick={handleClearChat}
-              className="text-slate-500 hover:text-primary px-3 py-1 flex items-center justify-center"
-              title="Clear chat"
-            >
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width="16" 
-                height="16" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-                className="h-4 w-4"
-              >
-                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
-              </svg>
-            </Button>
+          <div className="flex justify-end items-center mt-1 gap-2">
             <Button 
               type="button"
               variant="ghost" 
@@ -257,6 +234,31 @@ export default function ChatInterface() {
               >
                 <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
                 <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+              </svg>
+            </Button>
+            <Button 
+              type="button"
+              variant="ghost" 
+              size="sm" 
+              onClick={handleClearChat}
+              className="text-slate-500 hover:text-primary px-3 py-1 flex items-center justify-center"
+              title="Clear chat"
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="16" 
+                height="16" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+                className="h-4 w-4"
+              >
+                <path d="M3 6h18"></path>
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
               </svg>
             </Button>
           </div>
