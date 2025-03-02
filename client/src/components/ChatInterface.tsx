@@ -141,11 +141,11 @@ export default function ChatInterface() {
   };
 
   return (
-    <Card className="flex-grow flex flex-col overflow-hidden shadow-sm border border-slate-200 relative">
+    <Card className="flex-grow flex flex-col overflow-hidden shadow-sm border border-slate-200">
       {/* Chat Messages Area */}
       <div 
         ref={chatMessagesRef}
-        className="flex-grow p-4 pb-16 overflow-y-auto space-y-6"
+        className="flex-grow p-4 overflow-y-auto space-y-6"
         style={{ 
           minHeight: "300px", 
           maxHeight: "calc(100vh - 240px)",
@@ -183,44 +183,7 @@ export default function ChatInterface() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Floating Action Buttons */}
-      {messages.length > 1 && (
-        <div className="absolute bottom-[60px] left-1/2 transform -translate-x-1/2 z-50">
-          <div className="bg-slate-800/80 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-3 shadow-lg">
-            <button 
-              onClick={() => {
-                const chatContent = messages.map(m => 
-                  `${m.role === 'assistant' ? 'Ibrahim Bot' : 'You'}: ${m.content}`
-                ).join('\n\n');
-                navigator.clipboard.writeText(chatContent);
-                toast({
-                  title: "Copied",
-                  description: "Chat content copied to clipboard",
-                });
-              }}
-              className="text-white p-1 hover:bg-slate-700/50 rounded-full transition-colors"
-              aria-label="Copy chat"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-              </svg>
-            </button>
-            <button 
-              onClick={handleClearChat}
-              className="text-white p-1 hover:bg-slate-700/50 rounded-full transition-colors"
-              aria-label="Clear chat"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 6h18"></path>
-                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
-
+      {/* Chat Input Area */}
       <div className="p-4 border-t border-slate-200">
         <form onSubmit={handleSubmit} className="flex flex-col gap-2">
           <div className="flex gap-2">
@@ -233,6 +196,70 @@ export default function ChatInterface() {
             />
             <Button type="submit" disabled={isTyping || !inputMessage.trim()}>
               <Send className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="flex justify-end items-center mt-1 gap-2">
+            <Button 
+              type="button"
+              variant="ghost" 
+              size="sm" 
+              onClick={() => {
+                const chatContent = messages.map(m => 
+                  `${m.role === 'assistant' ? 'Ibrahim Bot' : 'You'}: ${m.content}`
+                ).join('\n\n');
+
+                navigator.clipboard.writeText(chatContent)
+                  .then(() => {
+                    // You could add a toast notification here
+                    console.log('Chat copied to clipboard');
+                  })
+                  .catch(err => {
+                    console.error('Failed to copy: ', err);
+                  });
+              }}
+              className="text-slate-500 hover:text-primary px-2 py-1 flex items-center justify-center"
+              title="Copy chat to clipboard"
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="16" 
+                height="16" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+                className="h-4 w-4"
+              >
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+              </svg>
+            </Button>
+            <Button 
+              type="button"
+              variant="ghost" 
+              size="sm" 
+              onClick={handleClearChat}
+              className="text-slate-500 hover:text-primary px-2 py-1 flex items-center justify-center"
+              title="Clear chat"
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="16" 
+                height="16" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+                className="h-4 w-4"
+              >
+                <path d="M3 6h18"></path>
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+              </svg>
             </Button>
           </div>
         </form>
