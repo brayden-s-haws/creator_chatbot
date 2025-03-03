@@ -41,11 +41,11 @@ export default function Home() {
         )}
 
         {/* Right Column (Chat) - Mobile: Full Width, Desktop: 2/3 Width */}
-        <div className={`w-full ${!isMobile ? 'md:w-2/3' : ''} flex flex-col`}>
+        <div className={`w-full ${!isMobile ? 'md:w-2/3' : ''} flex flex-col h-full`}>
           <ChatInterface />
 
           {/* Powered By Section */}
-          <div className="mt-3 flex justify-center">
+          <div className="mt-2 flex justify-center">
             <p className="text-sm text-slate-500">
               
             </p>
