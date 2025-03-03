@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "./ui/card";
 
@@ -12,37 +11,35 @@ const SUGGESTED_QUESTIONS = [
   "What frameworks help with product pricing decisions?",
   "How should I structure my product team for success?",
   "How do I validate product ideas before building them?"
-  
+
 ];
 
 type SuggestedQuestionsProps = {
   onSelectQuestion?: (question: string) => void;
+  className?: string;
 };
 
-export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuestionsProps) {
+export default function SuggestedQuestions({ onSelectQuestion, className }: SuggestedQuestionsProps) {
   const [questions] = useState(SUGGESTED_QUESTIONS);
-  
+
   const handleQuestionClick = (question: string) => {
     if (typeof window !== 'undefined') {
-      // Dispatch a custom event that ChatInterface can listen for
       const event = new CustomEvent('suggested-question', { detail: question });
       window.dispatchEvent(event);
     }
-    
-    // Also call the callback if provided
+
     if (onSelectQuestion) {
       onSelectQuestion(question);
     }
   };
-  
+
   return (
-    <div className="flex flex-col gap-4">
+    <div className={`flex flex-col gap-4 ${className || ''}`}>
       <Card className="p-6">
         <h3 className="font-semibold text-base mb-4">Suggested Questions</h3>
-        
         <div className="space-y-2">
           {questions.map((question, index) => (
-            <button 
+            <button
               key={index}
               className="flex items-center w-full px-4 py-3 text-xs bg-slate-50 border border-slate-200 rounded-full hover:bg-slate-100 text-slate-700 hover:text-primary transition"
               onClick={() => handleQuestionClick(question)}
@@ -57,15 +54,15 @@ export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuesti
           ))}
         </div>
       </Card>
-      
+
       {/* New section for RTB image */}
       <Card className="p-6 flex flex-col items-center">
         <div className="text-center mt-2 text-sm text-slate-500">
           <p> </p>
         </div>
-        <img 
-          src="/rtbbig.png" 
-          alt="Run The Business" 
+        <img
+          src="/rtbbig.png"
+          alt="Run The Business"
           className="max-w-full h-auto"
         />
         <div className="text-center mt-2 text-sm text-slate-500">

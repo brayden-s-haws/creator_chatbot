@@ -10,7 +10,7 @@ import ChatMessage from "./ChatMessage";
 import { MessageType } from "@shared/schema";
 import { Send } from "lucide-react";
 
-export default function ChatInterface() {
+export default function ChatInterface({ className }: { className?: string }) { // Added className prop
   const { toast } = useToast();
   const [messages, setMessages] = useState<MessageType[]>([
     {
@@ -183,7 +183,7 @@ export default function ChatInterface() {
   return (
     <>
     <Toaster />
-    <Card className="flex-grow flex flex-col overflow-hidden shadow-sm border border-slate-200">
+    <Card className={`flex-grow flex flex-col overflow-hidden shadow-sm border border-slate-200 ${className || ''}`}> {/* Applied className */}
       {/* Chat Messages Area */}
       <div 
         ref={chatMessagesRef}

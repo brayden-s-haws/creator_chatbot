@@ -42,12 +42,23 @@ export default function Home() {
 
         {/* Right Column (Chat) - Mobile: Full Width, Desktop: 2/3 Width */}
         <div className={`w-full ${!isMobile ? 'md:w-2/3' : ''} flex flex-col h-full`}>
-          <ChatInterface />
+          <Tabs defaultValue="chat" className="w-full flex flex-col flex-grow">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="chat">Chat</TabsTrigger>
+              <TabsTrigger value="documents">Add Documents</TabsTrigger>
+            </TabsList>
+            <TabsContent value="chat" className="mt-6 flex-grow flex flex-col">
+              <ChatInterface className="flex-grow flex flex-col" />
+            </TabsContent>
+            <TabsContent value="documents" className="mt-6 flex-grow">
+              <CsvUploader />
+            </TabsContent>
+          </Tabs>
 
           {/* Powered By Section */}
           <div className="mt-2 flex justify-center">
             <p className="text-sm text-slate-500">
-              
+
             </p>
           </div>
         </div>
