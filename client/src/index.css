@@ -24,6 +24,16 @@
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans antialiased bg-background text-foreground h-screen;
+  }
+  
+  #root {
+    @apply h-full flex flex-col;
+  }
+}
+
+@layer utilities {
+  .chat-container {
+    height: calc(100vh - 200px);
   }
 }

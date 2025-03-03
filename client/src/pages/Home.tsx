@@ -26,7 +26,7 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow flex flex-col md:flex-row container mx-auto px-4 py-6 gap-8 max-w-screen-xl">
+      <main className="flex-grow flex flex-col md:flex-row container mx-auto px-4 py-6 gap-8 max-w-screen-xl h-[calc(100vh-76px)]">
         {/* Left Column (Sidebar) - Mobile: Hidden, Desktop: 1/3 Width */}
         {!isMobile && (
           <div className="w-full md:w-1/3 space-y-6">
