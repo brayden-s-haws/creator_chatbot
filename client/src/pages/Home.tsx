@@ -25,31 +25,22 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-grow flex flex-col md:flex-row container mx-auto px-4 py-6 gap-8 max-w-screen-xl">
-        {/* Left Column (Sidebar) - Mobile: Hidden, Desktop: 1/3 Width */}
+      {/* Main Content - Make this flex with proper height */}
+      <main className="flex-1 flex flex-col md:flex-row container mx-auto px-4 py-6 gap-8 max-w-screen-xl">
+        {/* Left Column (Sidebar) */}
         {!isMobile && (
-          <div className="w-full md:w-1/3 space-y-6">
+          <div className="w-full md:w-1/3 flex flex-col space-y-6">
             <ProfileCard />
-            <SuggestedQuestions />
-
-            {/* CSV Uploader Component - Hidden */}
-            {/* <div className="bg-white rounded-lg shadow">
-              <CsvUploader />
-            </div> */}
+            {/* Regular questions section */}
+            <div className="flex-1">
+              <SuggestedQuestions />
+            </div>
           </div>
         )}
 
-        {/* Right Column (Chat) - Mobile: Full Width, Desktop: 2/3 Width */}
+        {/* Right Column (Chat) - Make this flex-1 to fill space */}
         <div className={`w-full ${!isMobile ? 'md:w-2/3' : ''} flex flex-col`}>
           <ChatInterface />
-
-          {/* Powered By Section */}
-          <div className="mt-3 flex justify-center">
-            <p className="text-sm text-slate-500">
-              
-            </p>
-          </div>
         </div>
       </main>
     </div>

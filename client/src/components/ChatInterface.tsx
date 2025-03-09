@@ -183,17 +183,16 @@ export default function ChatInterface() {
   return (
     <>
     <Toaster />
-    <Card className="flex-grow flex flex-col overflow-hidden shadow-sm border border-slate-200">
-      {/* Chat Messages Area */}
-      <div 
-        ref={chatMessagesRef}
-        className="flex-grow p-4 overflow-y-auto space-y-6"
-        style={{ 
-          minHeight: "300px", 
-          maxHeight: "calc(100vh - 240px)",
-          height: "auto" 
-        }}
-      >
+      <Card className="flex-1 flex flex-col overflow-hidden shadow-sm border border-slate-200">
+        {/* Chat Messages Area - adjust height to fill available space */}
+        <div 
+          ref={chatMessagesRef}
+          className="flex-1 p-4 overflow-y-auto space-y-6"
+          style={{ 
+            minHeight: "250px",
+            height: "100%"
+          }}
+        >
         {messages.map((message) => (
           <ChatMessage 
             key={message.id} 
@@ -226,7 +225,7 @@ export default function ChatInterface() {
       </div>
 
       {/* Chat Input Area */}
-      <div className="p-4 border-t border-slate-200">
+        <div className="p-4 border-t border-slate-200 mt-auto">
         <form onSubmit={handleSubmit} className="flex flex-col gap-2">
           {messages.length > 1 && (
             <div className="flex justify-end items-center gap-2 mb-2"> {/* Added container for buttons */}
