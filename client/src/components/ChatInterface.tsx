@@ -191,8 +191,8 @@ export default function ChatInterface() {
           className="flex-1 p-4 space-y-6"
           style={{ 
             minHeight: "250px",
-            height: "calc(100vh - 200px)",
-            maxHeight: "calc(100vh - 200px)"
+            height: "calc(100vh - 252px)",
+            maxHeight: "calc(100vh - 252px)"
           }}
         >
           <div className="space-y-6 pr-4">
