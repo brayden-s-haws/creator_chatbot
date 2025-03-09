@@ -64,7 +64,7 @@ export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuesti
           <p> </p>
         </div>
         <img 
-          src="/rtbbig.png" 
+          src="/lemonaid_icon_new.jpeg" 
           alt="Run The Business" 
           className="max-w-full h-auto"
         />

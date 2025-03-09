@@ -183,140 +183,138 @@ export default function ChatInterface() {
   return (
     <>
     <Toaster />
-    <Card className="shadow-md border border-slate-200 flex-1 flex flex-col">
-      <div className="flex flex-col h-full min-h-[500px] md:h-[calc(100vh-140px)]">
-        {/* Chat Messages Area */}
-        <div 
-          ref={chatMessagesRef}
-          className="flex-grow p-4 overflow-y-auto space-y-6"
-          style={{ 
-            minHeight: "300px", 
-            maxHeight: "calc(100vh - 240px)",
-            height: "auto" 
-          }}
-        >
-          {messages.map((message) => (
-            <ChatMessage 
-              key={message.id} 
-              message={message} 
-            />
-          ))}
+    <Card className="flex-grow flex flex-col overflow-hidden shadow-sm border border-slate-200">
+      {/* Chat Messages Area */}
+      <div 
+        ref={chatMessagesRef}
+        className="flex-grow p-4 overflow-y-auto space-y-6"
+        style={{ 
+          minHeight: "300px", 
+          maxHeight: "calc(100vh - 240px)",
+          height: "auto" 
+        }}
+      >
+        {messages.map((message) => (
+          <ChatMessage 
+            key={message.id} 
+            message={message} 
+          />
+        ))}
 
-          {/* Typing Indicator */}
-          {isTyping && (
-            <div className="flex gap-3 max-w-3xl">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 rounded-full overflow-hidden">
-                  <img 
-                    src="/headshot.png" 
-                    alt="Ibrahim Bashir" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-              <div className="bg-slate-100 px-4 py-3 rounded-lg flex items-center">
-                <div className="typing-indicator">
-                  <span className="mx-0.5 inline-block w-2 h-2 bg-slate-400 rounded-full animate-pulse"></span>
-                  <span className="mx-0.5 inline-block w-2 h-2 bg-slate-400 rounded-full animate-pulse delay-150"></span>
-                  <span className="mx-0.5 inline-block w-2 h-2 bg-slate-400 rounded-full animate-pulse delay-300"></span>
-                </div>
+        {/* Typing Indicator */}
+        {isTyping && (
+          <div className="flex gap-3 max-w-3xl">
+            <div className="flex-shrink-0">
+              <div className="w-8 h-8 rounded-full overflow-hidden">
+                <img 
+                  src="/headshot_new.jpeg" 
+                  alt="Ibrahim Bashir" 
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Chat Input Area */}
-        <div className="p-4 border-t border-slate-200">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-            {messages.length > 1 && (
-              <div className="flex justify-end items-center gap-2 mb-2"> {/* Added container for buttons */}
-                <Button 
-                  type="button"
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => {
-                    const chatContent = messages.map(m => 
-                      `${m.role === 'assistant' ? 'Ibrahim Bot' : 'You'}: ${m.content}`
-                    ).join('\n\n');
-
-                    navigator.clipboard.writeText(chatContent)
-                      .then(() => {
-                        toast({
-                          title: "Copied!",
-                          description: "Chat copied to clipboard",
-                          variant: "success",
-                        });
-                      })
-                      .catch(err => {
-                        console.error('Failed to copy: ', err);
-                        toast({
-                          title: "Error",
-                          description: "Failed to copy chat to clipboard",
-                          variant: "destructive",
-                        });
-                      });
-                  }}
-                  className="text-slate-500 hover:text-primary px-2 py-1 flex items-center justify-center"
-                  title="Copy chat to clipboard"
-                >
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    width="16" 
-                    height="16" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                    className="h-4 w-4"
-                  >
-                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                  </svg>
-                </Button>
-                <Button 
-                  type="button"
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={handleClearChat}
-                  className="text-slate-500 hover:text-primary px-2 py-1 flex items-center justify-center"
-                  title="Clear chat"
-                >
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    width="16" 
-                    height="16" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                    className="h-4 w-4"
-                  >
-                    <path d="M3 6h18"></path>
-                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                  </svg>
-                </Button>
+            <div className="bg-slate-100 px-4 py-3 rounded-lg flex items-center">
+              <div className="typing-indicator">
+                <span className="mx-0.5 inline-block w-2 h-2 bg-slate-400 rounded-full animate-pulse"></span>
+                <span className="mx-0.5 inline-block w-2 h-2 bg-slate-400 rounded-full animate-pulse delay-150"></span>
+                <span className="mx-0.5 inline-block w-2 h-2 bg-slate-400 rounded-full animate-pulse delay-300"></span>
               </div>
-            )}
-            <div className="flex gap-2">
-              <Input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                placeholder="Ask a question..."
-                className="flex-grow"
-              />
-              <Button type="submit" disabled={isTyping || !inputMessage.trim()}>
-                <Send className="h-4 w-4" />
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Chat Input Area */}
+      <div className="p-4 border-t border-slate-200">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+          {messages.length > 1 && (
+            <div className="flex justify-end items-center gap-2 mb-2"> {/* Added container for buttons */}
+              <Button 
+                type="button"
+                variant="ghost" 
+                size="sm" 
+                onClick={() => {
+                  const chatContent = messages.map(m => 
+                    `${m.role === 'assistant' ? 'Ibrahim Bot' : 'You'}: ${m.content}`
+                  ).join('\n\n');
+
+                  navigator.clipboard.writeText(chatContent)
+                    .then(() => {
+                      toast({
+                        title: "Copied!",
+                        description: "Chat copied to clipboard",
+                        variant: "success",
+                      });
+                    })
+                    .catch(err => {
+                      console.error('Failed to copy: ', err);
+                      toast({
+                        title: "Error",
+                        description: "Failed to copy chat to clipboard",
+                        variant: "destructive",
+                      });
+                    });
+                }}
+                className="text-slate-500 hover:text-primary px-2 py-1 flex items-center justify-center"
+                title="Copy chat to clipboard"
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                  className="h-4 w-4"
+                >
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                </svg>
+              </Button>
+              <Button 
+                type="button"
+                variant="ghost" 
+                size="sm" 
+                onClick={handleClearChat}
+                className="text-slate-500 hover:text-primary px-2 py-1 flex items-center justify-center"
+                title="Clear chat"
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                  className="h-4 w-4"
+                >
+                  <path d="M3 6h18"></path>
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                </svg>
               </Button>
             </div>
-          </form>
-        </div>
+          )}
+          <div className="flex gap-2">
+            <Input
+              type="text"
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              placeholder="Ask a question..."
+              className="flex-grow"
+            />
+            <Button type="submit" disabled={isTyping || !inputMessage.trim()}>
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
+        </form>
       </div>
     </Card>
     </>

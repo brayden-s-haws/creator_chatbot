@@ -7,7 +7,7 @@ export default function ProfileCard() {
       <div className="flex flex-col items-center text-center">
         <div className="mb-4">
           <img 
-            src="/headshot.png"
+            src="/headshot_new.jpeg"
             alt="Ibrahim Bashir"
             className="w-20 h-20 rounded-full object-cover"
           />

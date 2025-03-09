@@ -16,8 +16,8 @@ export default function Home() {
       <header className="bg-white border-b border-slate-200 py-4 shadow-sm">
         <div className="container mx-auto px-4 max-w-screen-xl flex items-center">
           <div className="flex items-center gap-4">
-            <img src="/rtblogo.png" alt="Run the Business" className="h-12" />
-            <h1 className="text-xl font-semibold text-slate-800 font-['Poppins']">Run the Business</h1>
+            <img src="/lemonaid_icon_new.jpeg" alt="Run the Business" className="h-12" />
+            <h1 className="text-xl font-semibold text-slate-800 font-['Poppins']">LemonAid</h1>
           </div>
           <div className="ml-auto">
             <LinksDropdown />
@@ -26,7 +26,7 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow flex flex-col md:flex-row container mx-auto px-4 py-6 gap-8 max-w-screen-xl h-[calc(100vh-76px)]">
+      <main className="flex-grow flex flex-col md:flex-row container mx-auto px-4 py-6 gap-8 max-w-screen-xl">
         {/* Left Column (Sidebar) - Mobile: Hidden, Desktop: 1/3 Width */}
         {!isMobile && (
           <div className="w-full md:w-1/3 space-y-6">
