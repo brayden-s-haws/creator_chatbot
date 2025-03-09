@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatMessage from "./ChatMessage";
 import { MessageType } from "@shared/schema";
 import { Send } from "lucide-react";
@@ -184,21 +185,23 @@ export default function ChatInterface() {
     <>
     <Toaster />
       <Card className="flex-1 flex flex-col overflow-hidden shadow-sm border border-slate-200">
-        {/* Chat Messages Area - adjust height to fill available space */}
-        <div 
+        {/* Chat Messages Area - using ScrollArea for controlled scrolling */}
+        <ScrollArea 
           ref={chatMessagesRef}
-          className="flex-1 p-4 overflow-y-auto space-y-6"
+          className="flex-1 p-4 space-y-6"
           style={{ 
             minHeight: "250px",
-            height: "100%"
+            height: "calc(100vh - 200px)",
+            maxHeight: "calc(100vh - 200px)"
           }}
         >
-        {messages.map((message) => (
-          <ChatMessage 
-            key={message.id} 
-            message={message} 
-          />
-        ))}
+          <div className="space-y-6 pr-4">
+            {messages.map((message) => (
+              <ChatMessage 
+                key={message.id} 
+                message={message} 
+              />
+            ))}
 
         {/* Typing Indicator */}
         {isTyping && (
@@ -222,7 +225,8 @@ export default function ChatInterface() {
           </div>
         )}
         <div ref={messagesEndRef} />
-      </div>
+          </div>
+        </ScrollArea>
 
       {/* Chat Input Area */}
         <div className="p-4 border-t border-slate-200 mt-auto">
