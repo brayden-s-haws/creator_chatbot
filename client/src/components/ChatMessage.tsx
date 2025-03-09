@@ -65,7 +65,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
       <div className="flex-shrink-0">
         <div className="w-8 h-8 rounded-full overflow-hidden">
             <img 
-              src="/headshot.png" 
+              src="/headshot_new.jpeg" 
               alt="Ibrahim Bashir" 
               className="w-full h-full object-cover"
             />
