@@ -10,7 +10,6 @@ const SUGGESTED_QUESTIONS = [
   "What is a good North Star metric for SaaS products?",
   "How do I identify my product's core value proposition?",
   "What frameworks help with product pricing decisions?",
-  "How should I structure my product team for success?",
   "How do I validate product ideas before building them?"
   
 ];
