@@ -41,14 +41,8 @@ export default function ChatInterface() {
   useEffect(() => {
     if (initialLoad) {
       setInitialLoad(false);
-      return;
     }
-
-    // Only scroll if this is not the initial page load or user has interacted
-    if (hasUserInteracted) {
-      scrollToBottom();
-    }
-  }, [messages, isTyping, initialLoad, hasUserInteracted]);
+  }, [messages, isTyping, initialLoad]);
 
   // Set user interaction flag when input receives focus or text changes
   useEffect(() => {
