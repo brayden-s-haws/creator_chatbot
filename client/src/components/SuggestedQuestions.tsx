@@ -5,12 +5,8 @@ import { Card } from "./ui/card";
 const SUGGESTED_QUESTIONS = [
   "How do I build a GTM strategy for a new product?",
   "What's the difference between product-led vs sales-led growth?",
-  "How do I create an effective product launch plan?",
   "How can I reduce customer churn?",
-  "What is a good North Star metric for SaaS products?",
-  "How do I identify my product's core value proposition?",
-  "What frameworks help with product pricing decisions?",
-  "How do I validate product ideas before building them?"
+  "What is a good North Star metric for SaaS products?"
   
 ];
 
