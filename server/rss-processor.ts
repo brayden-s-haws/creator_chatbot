@@ -5,8 +5,8 @@ import { storage } from "./storage";
 import { createEmbedding } from "./embeddings";
 import { addDocumentToVectorStore } from "./vector-store";
 
-// RSS feed URL
-const RSS_FEED_URL = "https://runthebusiness.substack.com/feed";
+// RSS feed URL - Replace with your own content source
+const RSS_FEED_URL = "https://example.com/feed";
 
 // Define a custom parser type
 type CustomFeed = {
@@ -45,7 +45,7 @@ async function extractArticleContent(url: string): Promise<string> {
     const $ = cheerio.load(html);
     
     // Find the article content
-    // Substack typically uses div.post-content for the main content
+    // Look for standard content containers
     let content = "";
     
     // Attempt to get the main content

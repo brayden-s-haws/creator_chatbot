@@ -5,9 +5,9 @@ import { createEmbedding } from '../server/embeddings';
 import { addDocumentToVectorStore } from '../server/vector-store';
 import { processRssAndUpdate } from '../server/rss-processor';
 
-// Constants
-const SUBSTACK_URL = 'https://runthebusiness.substack.com';
-const ARCHIVE_URL = `${SUBSTACK_URL}/archive`;
+// Constants - Replace with your own content source URLs
+const CONTENT_SOURCE_URL = 'https://example.com';
+const ARCHIVE_URL = `${CONTENT_SOURCE_URL}/archive`;
 const MAX_PAGES = 10; // Limit the number of archive pages to process
 
 /**
@@ -168,10 +168,10 @@ async function scrapeArchivePage(pageNumber: number): Promise<{
     ? ARCHIVE_URL 
     : `${ARCHIVE_URL}?page=${pageNumber}`;
     
-  // Try an alternative URL format as well (sometimes Substack uses a different structure)
+  // Try an alternative URL format as well (sometimes content sites use a different structure)
   const alternativeUrl = pageNumber === 1
     ? ARCHIVE_URL
-    : `${SUBSTACK_URL}/archive/${pageNumber}`;
+    : `${CONTENT_SOURCE_URL}/archive/${pageNumber}`;
   
   console.log(`Scraping archive page ${pageNumber}: ${url}`);
   
@@ -241,7 +241,7 @@ async function scrapeArchivePage(pageNumber: number): Promise<{
       if (!isLikelyPost) return;
       
       // Construct full URL if relative
-      const fullUrl = href.startsWith('http') ? href : `${SUBSTACK_URL}${href.startsWith('/') ? href : `/${href}`}`;
+      const fullUrl = href.startsWith('http') ? href : `${CONTENT_SOURCE_URL}${href.startsWith('/') ? href : `/${href}`}`;
       
       // Try to find title near the link
       let title = link.text().trim();
@@ -312,7 +312,7 @@ async function scrapeArchivePage(pageNumber: number): Promise<{
       }
       
       // Add to article links if it looks legitimate
-      if (fullUrl.includes(SUBSTACK_URL) || fullUrl.includes('runthebusiness')) {
+      if (fullUrl.includes(CONTENT_SOURCE_URL) || fullUrl.includes('example.com')) {
         articleLinks.push({ url: fullUrl, title, date });
         processedUrls.add(fullUrl);
         processedUrls.add(href);
