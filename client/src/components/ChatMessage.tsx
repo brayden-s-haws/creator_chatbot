@@ -14,7 +14,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   if (isUser) {
     return (
       <div className="flex justify-end max-w-3xl ml-auto animate-in fade-in slide-in-from-bottom-5 duration-300">
-        <div className="bg-[#ee7835] text-white px-4 py-2 rounded-full shadow-sm">
+        <div className="bg-[#4F46E5] text-white px-4 py-2 rounded-full shadow-sm">
           <p className="font-medium text-base">{message.content}</p>
         </div>
       </div>
@@ -63,11 +63,11 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   return (
     <div className="flex gap-3 max-w-3xl animate-in fade-in slide-in-from-bottom-5 duration-300">
       <div className="flex-shrink-0">
-        <div className="w-8 h-8 rounded-full overflow-hidden">
+        <div className="w-8 h-8 rounded-full overflow-hidden bg-indigo-600 flex items-center justify-center">
             <img 
-              src="/headshot_new.jpeg" 
-              alt="Ibrahim Bashir" 
-              className="w-full h-full object-cover"
+              src="/chatbot_icon.svg" 
+              alt="AI Assistant" 
+              className="w-6 h-6 object-contain"
             />
           </div>
       </div>
