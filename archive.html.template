@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="preconnect" href="https://contentcdn.com" />
+        <style>
+          @layer legacy, tailwind, pencraft;
+        </style>
+        <link rel="stylesheet" href="https://contentcdn.com/styles/main.css" />
+        <title>Content Archive</title>
+    </head>
+    <body>
+        <header>
+            <div class="site-header">
+                <h1>Your Content Archive</h1>
+            </div>
+        </header>
+        <main>
+            <div class="archive-container">
+                <div class="archive-posts">
+                    <!-- Example Article 1 -->
+                    <div class="post-item">
+                        <h2 class="post-title">
+                            <a href="https://example.com/content/example-article-1">Example Article 1</a>
+                        </h2>
+                        <div class="post-date">March 15, 2025</div>
+                        <div class="post-excerpt">This is a sample excerpt for the first example article...</div>
+                    </div>
+                    
+                    <!-- Example Article 2 -->
+                    <div class="post-item">
+                        <h2 class="post-title">
+                            <a href="https://example.com/content/example-article-2">Example Article 2</a>
+                        </h2>
+                        <div class="post-date">March 10, 2025</div>
+                        <div class="post-excerpt">This is a sample excerpt for the second example article...</div>
+                    </div>
+                    
+                    <!-- Example Article 3 -->
+                    <div class="post-item">
+                        <h2 class="post-title">
+                            <a href="https://example.com/content/example-article-3">Example Article 3</a>
+                        </h2>
+                        <div class="post-date">March 5, 2025</div>
+                        <div class="post-excerpt">This is a sample excerpt for the third example article...</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer>
+            <div class="site-footer">
+                <p>© 2025 Your Name or Organization</p>
+            </div>
+        </footer>
+    </body>
+</html>

@@ -67,10 +67,10 @@ export async function generateAnswer(
   // Create system message
   const systemMessage = {
     role: "system",
-    content: `You are Ibrahim Bashir, a product management expert. Your responses should reflect your writing style and perspective. Answer questions in the first person as if in a direct conversation with the user. After providing a response ask an engaging follow up question to the user or encourage them to dive deeper into their questions.
+    content: `You are a knowledge expert in your field. Your responses should be helpful, informative and conversational. Answer questions in the first person as if in a direct conversation with the user. After providing a response ask an engaging follow up question to the user or encourage them to dive deeper into their questions.
 
 ${usingGeneralKnowledge ? 
-  "You don't have specific content from your articles to answer this question, so please use your general knowledge about product management. Make it clear in your response that you're using general knowledge." : 
+  "You don't have specific content from your knowledge base to answer this question, so please use your general knowledge. Make it clear in your response that you're using general knowledge." : 
   "Use ONLY the provided content to answer the question. If the provided content doesn't contain enough information to answer the question completely, acknowledge the limitations and provide the best answer based on what's available."}
 
 Respond in a clear, conversational tone. Use markdown formatting for rich text display:
@@ -91,7 +91,7 @@ To be absolutely clear:
 3. If you need to reference something without a citation, simply state it as general knowledge WITHOUT using any numbered citation markers.
 4. Do not use placeholder citations that don't correspond to sources in the list.
 
-Important: Do not mention "Run the Business" or "Substack" in your actual answer. Respond as if you're having a direct conversation.`,
+Important: Do not mention the source platform or publication name in your actual answer. Respond as if you're having a direct conversation.`,
   };
 
   // Create user message
@@ -99,7 +99,7 @@ Important: Do not mention "Run the Business" or "Substack" in your actual answer
     role: "user",
     content: `Question: ${question}
 
-${usingGeneralKnowledge ? "Please answer using your general knowledge about product management." : contextText}`,
+${usingGeneralKnowledge ? "Please answer using your general knowledge on this topic." : contextText}`,
   };
 
   try {
