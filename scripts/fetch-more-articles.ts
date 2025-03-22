@@ -468,25 +468,25 @@ export async function fetchMoreArticles(): Promise<{
   // We'll prioritize known article slugs rather than guessing
   const baseUrl = "https://example.com/p/";
   
-  // Create a list of high-priority, confirmed article slugs
+  // Create a list of example article slugs
   const confirmedSlugs = [
-    // These are known article slugs from the blog
-    "invisible-career-asymptotes-part-1",
-    "creating-an-innovation-culture",
-    "why-youll-always-end-up-building-a-workflow",
-    "why-platform-ify",
-    "building-hardware",
-    "the-executive-mindset",
-    "when-the-users-were-right-all-along",
-    "upcoming-events-in-august",
-    "building-a-culture-of-innovation",
-    "organizing-knowledge-workers", 
-    "managing-vs-making",
-    "aligning-high-performing-teams",
-    // Known articles mentioned in content
-    "the-product-maker-spectrum",
-    "why-product-strategy-is-harder-than-you-think",
-    "what-makes-a-strong-product-leader"
+    // Example article slugs - replace with your content
+    "getting-started-with-our-product",
+    "ultimate-guide-to-productivity",
+    "how-to-improve-team-collaboration",
+    "best-practices-for-remote-work",
+    "product-feature-announcement",
+    "quarterly-industry-insights",
+    "customer-success-stories",
+    "upcoming-events-calendar",
+    "frequently-asked-questions",
+    "new-industry-trends", 
+    "company-values-and-mission",
+    "product-roadmap-preview",
+    // Additional examples
+    "beginner-friendly-tutorials",
+    "advanced-tips-and-tricks",
+    "troubleshooting-common-issues"
   ];
   
   // Only process the slugs we haven't already indexed
@@ -501,16 +501,16 @@ export async function fetchMoreArticles(): Promise<{
   // with exponential backoff and limit our requests
   const MAX_REQUESTS_PER_RUN = 5;
   
-  // If we have very few articles, also try some educated guesses - but only process 5 at a time
-  // to avoid rate limits
+  // If we have very few articles, also try additional examples - but only process 5 at a time
+  // to avoid potential rate limits
   if (existingArticles.length < 30) {
     const additionalSlugs = [
-      // Educated guesses based on themes in the blog
-      "the-product-managers-playbook",
-      "prioritizing-product-features",
-      "product-strategy-essentials",
-      "developing-customer-empathy",
-      "cross-functional-team-leadership"
+      // Additional example articles - replace with your content
+      "how-to-use-advanced-features",
+      "integrating-with-other-tools",
+      "customization-options",
+      "pricing-plans-comparison",
+      "security-best-practices"
     ];
     
     // Only add slugs we haven't already checked
@@ -518,7 +518,7 @@ export async function fetchMoreArticles(): Promise<{
       const url = `${baseUrl}${slug}`;
       if (!existingUrls.has(url) && !existingGuids.has(url) && !slugsToTry.includes(slug)) {
         slugsToTry.push(slug);
-        // Limit to 5 educated guesses per run to avoid rate limits
+        // Limit to 5 additional articles per run to avoid potential rate limits
         if (slugsToTry.length >= confirmedSlugs.length + 5) break;
       }
     }
