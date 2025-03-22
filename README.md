@@ -7,13 +7,36 @@ Knowledge resources often exist as vast collections of long-form content, making
 
 You can customize this chatbot for any field or topic where you have valuable content that users would benefit from exploring through conversation.
 
+## Customization Guide
+This is a generic template designed to be easily customized for your specific content and branding:
+
+1. **Replace Branding**: 
+   - Update ProfileCard.tsx with your name, title, and profile image
+   - Modify LinksDropdown.tsx with your relevant links
+   - Customize SuggestedQuestions.tsx with questions specific to your content
+   - Edit ChatInterface.tsx welcome message to reflect your brand voice
+
+2. **Add Your Content**: 
+   - Import your own content using the CSV uploader (use articles-sample.csv.template as a guide)
+   - Or modify server/rss-processor.ts to connect to your own content source
+   - Template data files provided: data.json.template, vector-store.json.template
+
+3. **Style Customization**: 
+   - Update theme.json to match your brand colors
+   - Customize UI components as needed in the client/src/components directory
+
+4. **Set Up Database**: 
+   - Configure a PostgreSQL database to store your content and embeddings
+   - Update environment variables to include your DATABASE_URL
+   - Set your OPENAI_API_KEY to enable embedding generation and response creation
+
 ## How It Works
 The chatbot is built by ingesting content from your content source, creating embeddings, and using AI to generate conversational responses based on semantic search. This diagram shows the various content flows in detail:
 
 ```mermaid
 graph TD
-    A[Start] --> B[Scrape articles from Substack]
-    B --> C[Process article content]
+    A[Start] --> B[Import content from source]
+    B --> C[Process content]
     C --> D[Split content into chunks]
     D --> E[Generate embeddings with OpenAI API]
     E --> F[Store in vector database]

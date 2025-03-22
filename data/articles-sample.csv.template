@@ -1,0 +1,3 @@
+title,url,text,pubDate,guid
+"Sample Article Title 1","https://example.com/article1","This is a sample article content that demonstrates the expected format for importing content into the knowledge base. You can replace this with your own content.","2025-03-01T12:00:00Z","article1"
+"Sample Article Title 2","https://example.com/article2","Another sample article showing how to structure your content. Each row represents one article that will be processed and made available to the chatbot.","2025-03-02T12:00:00Z","article2"
