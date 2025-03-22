@@ -141,40 +141,53 @@ export async function searchSimilarChunks(
  */
 export async function initializeVectorStore(): Promise<void> {
   try {
-    // Check if we have documents in the database
-    const count = await db.select({ count: sql<number>`count(*)` })
-      .from(vectorDocuments);
-    
-    if (count[0].count === 0) {
-      log("No vector documents found in database. Rebuilding from content chunks...", "vector-store");
+    try {
+      // Check if we have documents in the database
+      const count = await db.select({ count: sql<number>`count(*)` })
+        .from(vectorDocuments);
       
-      // Rebuild from content chunks
-      const contentChunks = await storage.getContentChunks();
-      const articles = await storage.getArticles();
-      const articlesMap = new Map(articles.map(article => [article.id, article]));
-      
-      for (const chunk of contentChunks) {
-        const article = articlesMap.get(chunk.articleId);
+      if (count[0].count === 0) {
+        log("No vector documents found in database. Rebuilding from content chunks...", "vector-store");
         
-        if (article && chunk.embedding) {
-          await addDocumentToVectorStore({
-            id: `chunk-${chunk.id}`,
-            content: chunk.content,
-            embedding: chunk.embedding as number[],
-            metadata: {
-              articleId: article.id,
-              title: article.title,
-              url: article.url,
-            },
-          });
+        // Rebuild from content chunks
+        const contentChunks = await storage.getContentChunks();
+        const articles = await storage.getArticles();
+        const articlesMap = new Map(articles.map(article => [article.id, article]));
+        
+        for (const chunk of contentChunks) {
+          const article = articlesMap.get(chunk.articleId);
+          
+          if (article && chunk.embedding) {
+            await addDocumentToVectorStore({
+              id: `chunk-${chunk.id}`,
+              content: chunk.content,
+              embedding: chunk.embedding as number[],
+              metadata: {
+                articleId: article.id,
+                title: article.title,
+                url: article.url,
+              },
+            });
+          }
         }
+        
+        log(`Vector store initialized with ${count[0].count} documents`, "vector-store");
+      } else {
+        // Load into memory cache for fast vector operations
+        await refreshCache();
+        log(`Vector store loaded with ${vectorCache.length} documents`, "vector-store");
       }
-      
-      log(`Vector store initialized with ${count[0].count} documents`, "vector-store");
-    } else {
-      // Load into memory cache for fast vector operations
-      await refreshCache();
-      log(`Vector store loaded with ${vectorCache.length} documents`, "vector-store");
+    } catch (dbError: any) {
+      // Check for database connection errors (expected in template mode)
+      if (dbError.code === 'ECONNREFUSED') {
+        log("Database connection not available - running in template mode", "vector-store");
+        // In template mode, we'll load directly from backup file without attempting database operations
+        vectorCache = []; // Clear cache since we can't connect to DB
+        cacheInitialized = true; // Mark as initialized to prevent further DB connection attempts
+        await loadFromBackup();
+        return;
+      }
+      throw dbError; // Re-throw if it's not a connection error
     }
   } catch (error: any) {
     log(`Failed to initialize vector store: ${error.message}`, "vector-store");
@@ -190,11 +203,36 @@ export async function initializeVectorStore(): Promise<void> {
  */
 async function refreshCache(): Promise<void> {
   try {
-    // Get all vector documents from database
-    const documents = await db.select().from(vectorDocuments);
+    // Check if we're in template mode (no database connection)
+    let isTemplateMode = false;
+    let documents: any[] = [];
+    
+    try {
+      // Get all vector documents from database
+      documents = await db.select().from(vectorDocuments);
+    } catch (dbError: any) {
+      if (dbError.code === 'ECONNREFUSED') {
+        isTemplateMode = true;
+        log("Database not available for refresh - running in template mode", "vector-store");
+        
+        // In template mode, check if we can load from backup file
+        try {
+          await fs.access(vectorStorePath);
+          const content = await fs.readFile(vectorStorePath, "utf-8");
+          documents = JSON.parse(content);
+          log(`Loaded ${documents.length} documents from backup file for cache refresh`, "vector-store");
+        } catch (fsError) {
+          // No backup file available or couldn't read it
+          log("Could not load vector documents from backup for cache refresh", "vector-store");
+          return;
+        }
+      } else {
+        throw dbError; // Re-throw if it's not a connection error
+      }
+    }
     
     // Check first document to understand embedding format
-    if (documents.length > 0) {
+    if (documents.length > 0 && !isTemplateMode) {
       const firstDoc = documents[0];
       console.log("First document embedding type:", typeof firstDoc.embedding);
       console.log("First document embedding is array?", Array.isArray(firstDoc.embedding));
@@ -292,40 +330,101 @@ async function loadFromBackup(): Promise<void> {
     try {
       await fs.access(vectorStorePath);
     } catch {
-      // File doesn't exist, nothing to load
-      log("No vector store backup file found", "vector-store");
-      return;
+      // Try template file if the backup doesn't exist
+      try {
+        const templatePath = path.join(dataDir, "vector-store.json.template");
+        await fs.access(templatePath);
+        log("Using template vector store file", "vector-store");
+        
+        // Read template file
+        const templateContent = await fs.readFile(templatePath, "utf-8");
+        // Create backup file from template
+        await fs.writeFile(vectorStorePath, templateContent);
+      } catch {
+        // Neither backup nor template exists
+        log("No vector store backup or template file found", "vector-store");
+        return;
+      }
     }
     
     // Read and parse data
     const content = await fs.readFile(vectorStorePath, "utf-8");
     const documents = JSON.parse(content);
     
-    // Insert into database
-    for (const doc of documents) {
-      const vectorDoc: InsertVectorDocument = {
-        documentId: doc.documentId,
-        content: doc.content,
-        embedding: doc.embedding,
-        articleId: doc.articleId,
-        title: doc.title,
-        url: doc.url,
-      };
-      
-      try {
-        await db.insert(vectorDocuments)
-          .values(vectorDoc)
-          .onConflictDoUpdate({
-            target: vectorDocuments.documentId,
-            set: vectorDoc
-          });
-      } catch (insertError: any) {
-        log(`Failed to restore document ${doc.documentId}: ${insertError.message}`, "vector-store");
+    // Check if we're in template mode (no database connection)
+    let isTemplateMode = false;
+    
+    try {
+      // Verify database connection with a quick test
+      await db.select({ test: sql<number>`1` }).from(vectorDocuments).limit(1);
+    } catch (dbError: any) {
+      if (dbError.code === 'ECONNREFUSED') {
+        isTemplateMode = true;
+        log("Running in template mode without database connection", "vector-store");
       }
     }
     
-    // Refresh cache
-    await refreshCache();
+    if (!isTemplateMode) {
+      // Normal mode - insert into database
+      for (const doc of documents) {
+        const vectorDoc: InsertVectorDocument = {
+          documentId: doc.documentId as string,
+          content: doc.content as string,
+          embedding: doc.embedding,
+          articleId: doc.articleId as number,
+          title: doc.title as string,
+          url: doc.url as string,
+        };
+        
+        try {
+          await db.insert(vectorDocuments)
+            .values(vectorDoc)
+            .onConflictDoUpdate({
+              target: vectorDocuments.documentId,
+              set: vectorDoc
+            });
+        } catch (insertError: any) {
+          log(`Failed to restore document ${doc.documentId}: ${insertError.message}`, "vector-store");
+        }
+      }
+      
+      // Refresh cache from database
+      await refreshCache();
+    } else {
+      // Template mode - load directly into memory cache
+      vectorCache = documents.map(doc => {
+        let embeddingArray = [];
+        
+        // Handle different possible formats of the embedding data
+        if (Array.isArray(doc.embedding)) {
+          embeddingArray = doc.embedding;
+        } else if (typeof doc.embedding === 'string') {
+          try {
+            // Try to parse if it's a JSON string
+            const parsed = JSON.parse(doc.embedding);
+            if (Array.isArray(parsed)) {
+              embeddingArray = parsed;
+            }
+          } catch (e) {
+            // Not a valid JSON string, ignore
+          }
+        } else if (doc.embedding && typeof doc.embedding === 'object') {
+          // If it's an object with array-like properties
+          try {
+            embeddingArray = Object.values(doc.embedding);
+          } catch (e) {
+            // Unable to extract values
+          }
+        }
+        
+        return {
+          ...doc,
+          embedding: embeddingArray
+        };
+      });
+      
+      cacheInitialized = true;
+    }
     
     log(`Restored ${documents.length} documents from backup file`, "vector-store");
   } catch (error: any) {
