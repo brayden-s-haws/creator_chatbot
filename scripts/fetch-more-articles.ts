@@ -39,7 +39,7 @@ function splitContentIntoChunks(content: string, maxChunkSize: number = 500): st
 }
 
 /**
- * Extract article content from a Substack post URL
+ * Extract article content from a post URL
  */
 async function extractArticleContent(url: string): Promise<string> {
   try {
@@ -51,7 +51,7 @@ async function extractArticleContent(url: string): Promise<string> {
     const $ = cheerio.load(html);
     
     // Find the article content
-    // Substack typically uses div.post-content for the main content
+    // Look for standard content containers
     let content = "";
     
     // Attempt to get the main content
@@ -353,7 +353,7 @@ async function scrapeArchivePage(pageNumber: number): Promise<{
         
         // Try multiple selectors for title, link, and date
         const titleElement = post.find('h1, h2, h3, h4, .title, .post-title');
-        const linkElement = post.find('a[href*="/p/"], a[href*="runthebusiness"], a');
+        const linkElement = post.find('a[href*="/p/"], a[href*="example"], a');
         const dateElement = post.find('time, [datetime], .date, .post-date');
         
         const title = titleElement.text().trim() || `Article ${i+1}`;
@@ -364,7 +364,7 @@ async function scrapeArchivePage(pageNumber: number): Promise<{
           continue;
         }
         
-        const fullLink = link.startsWith('http') ? link : `${SUBSTACK_URL}${link.startsWith('/') ? link : `/${link}`}`;
+        const fullLink = link.startsWith('http') ? link : `${CONTENT_SOURCE_URL}${link.startsWith('/') ? link : `/${link}`}`;
         
         // Try to extract date information
         let pubDate = new Date().toISOString();
@@ -396,7 +396,7 @@ async function scrapeArchivePage(pageNumber: number): Promise<{
         // Generate a guid from the URL
         const guid = fullLink;
         
-        if (title && fullLink && (fullLink.includes(SUBSTACK_URL) || fullLink.includes('runthebusiness'))) {
+        if (title && fullLink && (fullLink.includes(CONTENT_SOURCE_URL) || fullLink.includes('example.com'))) {
           console.log(`Processing article from post element: ${title}`);
           const success = await processArticle(fullLink, title, pubDate, guid);
           if (success) {
@@ -428,7 +428,7 @@ export async function fetchMoreArticles(): Promise<{
 }> {
   let totalArticlesAdded = 0;
   
-  console.log("Starting to fetch more articles from Substack archive...");
+  console.log("Starting to fetch more articles from content source archive...");
   
   // First, check how many articles we already have
   const currentArticles = await storage.getArticles();
@@ -466,7 +466,7 @@ export async function fetchMoreArticles(): Promise<{
   
   // Try a more strategic approach to find older articles
   // We'll prioritize known article slugs rather than guessing
-  const baseUrl = "https://runthebusiness.substack.com/p/";
+  const baseUrl = "https://example.com/p/";
   
   // Create a list of high-priority, confirmed article slugs
   const confirmedSlugs = [
