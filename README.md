@@ -1,14 +1,14 @@
-# Ibrahim Chatbot
+# Content Chatbot Template
 
 ## Description
-Product management is a field filled with nuanced strategies and knowledge. While there's plenty of long-form content, accessing this information quickly through conversation can be challenging. Ibrahim Chatbot solves this problem by creating an AI-powered assistant trained on Ibrahim Bashir's content from his "Run the Business" blog. This allows product managers to have interactive conversations about product management concepts and get insights directly inspired by Ibrahim's expertise.
+Knowledge resources often exist as vast collections of long-form content, making quick information retrieval challenging. This Content Chatbot template solves this problem by creating an AI-powered assistant trained on your own content. This allows users to have interactive conversations about topics in your content and get insights directly inspired by your expertise.
 
-![CleanShot Safari-2025-03-02](https://github.com/user-attachments/assets/943169b8-913f-4aa9-86f7-96e12eb9be96)
+![Screenshot of Chatbot](https://github.com/user-attachments/assets/943169b8-913f-4aa9-86f7-96e12eb9be96)
 
-If you're a product manager or interested in product, you can interact with this chatbot to get advice and insights on various product management topics.
+You can customize this chatbot for any field or topic where you have valuable content that users would benefit from exploring through conversation.
 
 ## How It Works
-The chatbot is built by ingesting content from Ibrahim Bashir's Substack blog, creating embeddings, and using AI to generate conversational responses based on semantic search. This diagram shows the various content flows in detail:
+The chatbot is built by ingesting content from your content source, creating embeddings, and using AI to generate conversational responses based on semantic search. This diagram shows the various content flows in detail:
 
 ```mermaid
 graph TD
@@ -46,7 +46,7 @@ graph TD
 ## Features
 This describes some of the key features of how the code works to generate an interactive chat experience.
 
-- **Content Ingestion**: The system automatically fetches content from Ibrahim Bashir's Substack blog and processes it into chunks suitable for embeddings.
+- **Content Ingestion**: The system automatically fetches content from your source and processes it into chunks suitable for embeddings.
 - **Embedding Generation**: Each content chunk is processed through OpenAI's embedding API to create vector representations that can be semantically searched.
 - **Vector Search**: When a user asks a question, the system finds the most semantically similar content chunks to provide as context.
 - **Citation System**: The chatbot includes a citation system that references sources for the information it provides, maintaining transparency and credibility.
