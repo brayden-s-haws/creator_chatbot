@@ -17,7 +17,7 @@ export default function ChatInterface() {
     {
       id: "welcome-message",
       role: "assistant",
-      content: "Hi there! I'm Ibrahim Bashir, product leader and author of Run the Business. What product or business questions can I help you with today?",
+      content: "Hi there! I'm your knowledge assistant. What questions can I help you with today?",
       createdAt: new Date().toISOString(),
       sources: [],
     },
@@ -167,7 +167,7 @@ export default function ChatInterface() {
       {
         id: "welcome-message",
         role: "assistant",
-        content: "What other product management or business strategy topics would you like to discuss?",
+        content: "What other topics would you like to discuss?",
         createdAt: new Date().toISOString(),
         sources: [],
       },
@@ -203,8 +203,8 @@ export default function ChatInterface() {
             <div className="flex-shrink-0">
               <div className="w-8 h-8 rounded-full overflow-hidden">
                 <img 
-                  src="/headshot_new.jpeg" 
-                  alt="Ibrahim Bashir" 
+                  src="/user_icon.svg" 
+                  alt="Assistant" 
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -233,7 +233,7 @@ export default function ChatInterface() {
                 size="sm" 
                 onClick={() => {
                   const chatContent = messages.map(m => 
-                    `${m.role === 'assistant' ? 'Ibrahim Bot' : 'You'}: ${m.content}`
+                    `${m.role === 'assistant' ? 'Assistant' : 'You'}: ${m.content}`
                   ).join('\n\n');
 
                   navigator.clipboard.writeText(chatContent)
@@ -241,7 +241,7 @@ export default function ChatInterface() {
                       toast({
                         title: "Copied!",
                         description: "Chat copied to clipboard",
-                        variant: "success",
+                        variant: "default",
                       });
                     })
                     .catch(err => {

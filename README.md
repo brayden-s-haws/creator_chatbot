@@ -61,11 +61,11 @@ This describes the role of key files in creating the chatbot experience.
 - **server/llm.ts**: Handles the interaction with OpenAI's API to generate responses.
 - **server/embeddings.ts**: Manages the creation of embeddings for content and queries.
 - **server/vector-store.ts**: Provides functionality for storing and searching vector embeddings.
-- **server/rss-processor.ts**: Fetches and processes content from Ibrahim's Substack RSS feed.
+- **server/rss-processor.ts**: Fetches and processes content from your content source's RSS feed.
 - **client/src/components/ChatInterface.tsx**: The main chat UI component that handles user interactions.
 - **client/src/components/ChatMessage.tsx**: Renders individual messages with support for markdown and citations.
 - **shared/schema.ts**: Defines the database schema and TypeScript types used throughout the application.
-- **scripts/fetch-more-articles.ts**: Utility for fetching additional articles from the Substack archive.
+- **scripts/fetch-more-articles.ts**: Utility for fetching additional articles from content archives.
 - **scripts/import-from-csv.ts**: Utility for importing articles from CSV files.
 
 ## Setup
@@ -73,8 +73,8 @@ The compute demands for this are minimal since it's primarily connecting APIs an
 
 1. Clone the repository:
    ```
-   git clone https://github.com/username/ibrahim-chatbot.git
-   cd ibrahim-chatbot
+   git clone https://github.com/username/content-chatbot.git
+   cd content-chatbot
    ```
 
 2. Install dependencies:
@@ -108,11 +108,12 @@ Key Packages/Tools:
 - **Vite**: Fast build tool and development server
 
 ## Roadmap
-- Add support for multiple content sources beyond Substack
+- Add support for multiple content sources
 - Add authentication to support personal conversation history
+- Implement more advanced vector search techniques
 
 ## Acknowledgements
-- Huge thanks to Ibrahim Bashir for creating the valuable content that powers this chatbot
+- Thanks to the creators of the libraries and tools that power this chatbot template
 
 ## License
 
