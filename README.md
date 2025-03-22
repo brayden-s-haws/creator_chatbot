@@ -3,7 +3,8 @@
 ## Description
 Knowledge resources often exist as vast collections of long-form content, making quick information retrieval challenging. This Content Chatbot template solves this problem by creating an AI-powered assistant trained on your own content. This allows users to have interactive conversations about topics in your content and get insights directly inspired by your expertise.
 
-![Screenshot of Chatbot](https://github.com/user-attachments/assets/943169b8-913f-4aa9-86f7-96e12eb9be96)
+![CleanShot Safari-2025-03-21](https://github.com/user-attachments/assets/f953bfb7-bfdd-4f92-9993-70b269860902)
+
 
 You can customize this chatbot for any field or topic where you have valuable content that users would benefit from exploring through conversation.
 
@@ -96,7 +97,7 @@ The compute demands for this are minimal since it's primarily connecting APIs an
 
 1. Clone the repository:
    ```
-   git clone https://github.com/username/content-chatbot.git
+   git clone https://github.com/brayden-s-haws/content-chatbot.git
    cd content-chatbot
    ```
 
