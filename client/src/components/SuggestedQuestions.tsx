@@ -3,11 +3,10 @@ import { useState } from "react";
 import { Card } from "./ui/card";
 
 const SUGGESTED_QUESTIONS = [
-  "How do I build a GTM strategy for a new product?",
-  "What's the difference between product-led vs sales-led growth?",
-  "How can I reduce customer churn?",
-  "What is a good North Star metric for SaaS products?"
-  
+  "Tell me about the key topics in this knowledge base",
+  "What are the best practices for this domain?",
+  "How can I learn more about this subject?",
+  "What are the fundamental concepts I should understand?"
 ];
 
 type SuggestedQuestionsProps = {
@@ -53,15 +52,15 @@ export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuesti
         </div>
       </Card>
       
-      {/* New section for RTB image */}
+      {/* Branding section */}
       <Card className="p-6 flex flex-col items-center">
         <div className="text-center mt-2 text-sm text-slate-500">
           <p> </p>
         </div>
         <img 
-          src="/lemonaid_icon_new.jpeg" 
-          alt="Run The Business" 
-          className="max-w-full h-auto"
+          src="/user_icon.svg" 
+          alt="Knowledge Base" 
+          className="max-w-full h-auto w-24"
         />
         <div className="text-center mt-2 text-sm text-slate-500">
           <p className="text-sm text-slate-500"></p>
@@ -69,7 +68,7 @@ export default function SuggestedQuestions({ onSelectQuestion }: SuggestedQuesti
           <p></p>
         </div>
         <div className="text-center mt-2 text-sm text-slate-500">
-          <p className="text-sm text-slate-500">Powered by <a href="https://runthebusiness.substack.com" target="_blank" rel="noopener noreferrer" className="text-blue-600">Run the Business</a></p>
+          <p className="text-sm text-slate-500">Powered by <a href="#" target="_blank" rel="noopener noreferrer" className="text-blue-600">Knowledge Assistant</a></p>
           <p></p>
           <p></p>
         </div>

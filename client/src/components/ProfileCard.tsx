@@ -7,13 +7,13 @@ export default function ProfileCard() {
       <div className="flex flex-col items-center text-center">
         <div className="mb-4">
           <img 
-            src="/headshot_new.jpeg"
-            alt="Ibrahim Bashir"
+            src="/user_icon.svg"
+            alt="Content Creator"
             className="w-20 h-20 rounded-full object-cover"
           />
         </div>
-        <h3 className="font-semibold text-lg">Ibrahim Bashir</h3>
-        <p className="text-sm text-slate-600 mt-1">Author of Run the Business | Host of 60 Minute Stories</p>
+        <h3 className="font-semibold text-lg">Content Creator</h3>
+        <p className="text-sm text-slate-600 mt-1">Author & Knowledge Expert</p>
       </div>
     </Card>
   );
