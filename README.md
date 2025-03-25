@@ -1,5 +1,7 @@
 # Content Chatbot Template
 
+#### Current status: Complete
+
 ## Description
 Knowledge resources often exist as vast collections of long-form content, making quick information retrieval challenging. This Content Chatbot template solves this problem by creating an AI-powered assistant trained on your own content. This allows users to have interactive conversations about topics in your content and get insights directly inspired by your expertise.
 
@@ -131,14 +133,14 @@ Key Packages/Tools:
 - **TypeScript**: Typed JavaScript for better developer experience
 - **Vite**: Fast build tool and development server
 
-## Roadmap
-- Add support for multiple content sources
-- Add authentication to support personal conversation history
-- Implement more advanced vector search techniques
-
-## Acknowledgements
-- Thanks to the creators of the libraries and tools that power this chatbot template
-
 ## License
 
 This project is open source and available under the [MIT License](LICENSE).
+
+___
+
+### Personal Progress
+* What I learned: How to generate, store, and retrieve embeddings. 
+* What I wish I had done differently: Done more of the work myself. This was my first real use of a coding assistant and I leaned on it heavily. It was very helpful in this case to get something out quickly but I missed a lot of potential learning.
+* What I am most proud of: The speed of building this project. I went from idea to deployed app with a few hundred users within a few days. This was built as a test case for a friend who was interested in purchasing a commercial product with the same capabilities. They wanted to test if there was market interest in a tool like this and this project allowed them to gauge market desire prior to purchasing a more comprehensive, production ready solution.
+* What I want to learn next: How to use similar technologies for voice and video modalities. It would be really interesting to take this concept further and allow the user to talk with an audio version of the creator or even more impressive would be to allow them to talk with a video version.
